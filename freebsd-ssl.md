@@ -238,6 +238,11 @@ TraceEnable off
   SetEnv modHeadersAvailable true
 </IfModule>
 ```
+6. Add to the end of file ([wp-bridge.com](https://www.wp-bridge.com/the-14-step-apache-security-best-practices-checklist/)):
+```
+FileETag None
+```
+> The ETag (Entity Tag) header in Apache comes with a number of sensitive details about your server. Therefore, you should hide this sort of information for full protection of your website. Especially, if you’re running an ecommerce website, you’ll have to hide this information to become PCI compliant.
 
 <br><br>
 
