@@ -34,10 +34,10 @@ def comes_from_htmx(request):
 def contains_ymd(string):
     '''
         returns found for:
-          .../general/2024-06-02
-          2024-06-02
+          .../general/2024-06-02/...
+          .../2024-06-02/...
     '''
-    return match('^.*[0-9]{4}-[0-9]{2}-[0-9]{2}$', string)
+    return match('^.*[0-9]{4}-[0-9]{2}-[0-9]{2}.*$', string)
 
 ## https://stackoverflow.com/questions/5194057/better-way-to-convert-file-sizes-in-python
 def convert_byte(size_in_bytes, to_persian=False):
