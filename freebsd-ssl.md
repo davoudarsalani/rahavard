@@ -271,7 +271,7 @@ sudo service apache24 restart
 To test changes:<br>
 *Method 1 ([stackoverflow.com](https://stackoverflow.com/a/24161120/))*
 ```
-curl -v -X TRACE http://www.EXAMPLE_COM
+curl -v -X TRACE --connect-timeout 20 --max-time 60 http://www.EXAMPLE_COM 2>&1
 ```
 *Method 2*
 ```
