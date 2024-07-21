@@ -490,7 +490,7 @@ ServerName FOO.BAR.local
 ## Default Overrides
 ServerSignature Off
 ServerTokens Prod
-Timeout 10
+Timeout 30
 
 ## Virtual Hosts
 <VirtualHost *:80>
