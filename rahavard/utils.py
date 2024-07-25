@@ -234,10 +234,12 @@ def get_list_of_files(directory, extension):
     ])
 
 def get_max_id(conn, table_name):
-    return conn.execute(f'''
-        SELECT MAX(id) FROM "{table_name}";
-    ''').fetchone()[0] \
-    or 0  ## added 'or 0' because max id may sometimes be None
+    ## added 'or 0' because max id may sometimes be None
+    return conn.execute(f'SELECT MAX(id) FROM "{table_name}";').fetchone()[0] or 0
+
+def get_max_parent_id(conn, table_name):
+    ## added 'or 0' because max parent_id may sometimes be None
+    return conn.execute(f'SELECT MAX(parent_id) FROM "{table_name}";').fetchone()[0] or 0
 
 def get_percent(smaller_number, total_number, to_persian=False):
     if smaller_number == 0 or total_number == 0:
