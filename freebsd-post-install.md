@@ -138,6 +138,7 @@ export LS_FLAGS='-A --color=always'
 
 alias ls="\ls $LS_FLAGS"
 alias sshalive='ssh -o TCPKeepAlive=yes -o ServerAliveCountMax=20 -o ServerAliveInterval=15'
+
 function lsl {
     shopt -s expand_aliases
     local ls_command ls_output
@@ -152,6 +153,10 @@ function lsl {
     printf '%s\n' "$ls_output" | column -t
     unalias ls_command
 }
+
+## to suppress the message:
+## "You have new mail in /var/mail/$USER"
+unset MAILCHECK
 ```
 
 Source `bashrc`:
