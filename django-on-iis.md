@@ -65,13 +65,12 @@ pip install wfastcgi
 - On the right, double-click Handler Mappings`
 - On the right, under `Actions` click `Add Module Mapping`
 - In the `Request path` box enter an asterisk: `*`
-- Click the arrow on the right-hand side of the `Module` box and select `FastCgi Module`
-    (NOT `CgiModule`)
+- Click the arrow on the right-hand side of the `Module` box and select `FastCgi Module` (NOT `CgiModule`)
 - In the `Executable` box, enter:<br>
   `C:\<PROJECT_SLUG>\venv\Scripts\python.exe|C:\<PROJECT_SLUG>\venv\Lib\site-packages\wfastcgi.py`
 - In the `Name` box, enter anything you want (e.g. `Django Handler`)
 - Click the `Request Restrictions` button
-- - Uncheck the `Invoke handler only if request is mapped to` checkbox.
+  - Uncheck the `Invoke handler only if request is mapped to` checkbox.
 - Click `OK`
 - Click `OK`
 - When prompted `Do you want to create a FastCGI application for this executable?`, Click `No`
