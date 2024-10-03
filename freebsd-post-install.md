@@ -74,6 +74,14 @@ sudo pkg install -y e2fsprogs   ## this will install chattr and lsattr
 sudo pkg install -y xorg xorg-server xorg-apps xorg-drivers
 sudo pkg install -y open-vm-tools-nox11   ## for VMs only
 
+## mysql (using ports)
+pkg search databases/mysql*
+sudo pkg install -y databases/mysql84-server
+##
+## mysql (online)
+sudo pkg search ^mysql
+sudo pkg install -y mysql84-server
+
 ## install from ports
 sudo pkg install -y sysutils/htop
 sudo pkg install -y databases/py-sqlite3
@@ -101,7 +109,7 @@ sudo cp /usr/share/zoneinfo/Asia/Tehran /etc/localtime  ## NOTE do this last
 
 <br>
 
-## Enable `apache24`
+## Enable `apache24` and `mysql`
 
 ```
 sudo vim /etc/rc.conf
@@ -110,6 +118,7 @@ sudo vim /etc/rc.conf
 Paste:
 ```
 apache24_enable="YES"
+mysql_enable="YES"
 ```
 
 <br>
@@ -657,5 +666,3 @@ sudo service live_parse restart
 > Documentation for `sshguard` configs
 
 > Documentation for `pf` configs
-
-> Documentation for 13 -> 14 `FreeBSD` upgrade

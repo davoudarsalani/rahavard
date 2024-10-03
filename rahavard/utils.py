@@ -256,10 +256,6 @@ def get_max_id(conn, table_name):
     ## added 'or 0' because max id may sometimes be None
     return conn.execute(f'SELECT MAX(id) FROM "{table_name}";').fetchone()[0] or 0
 
-def get_max_parent_id(conn, table_name):
-    ## added 'or 0' because max parent_id may sometimes be None
-    return conn.execute(f'SELECT MAX(parent_id) FROM "{table_name}";').fetchone()[0] or 0
-
 def get_percent(smaller_number, total_number, to_persian=False):
     if smaller_number == 0 or total_number == 0:
         if to_persian:
@@ -487,18 +483,27 @@ def add_yearmonthday_firstn_lastn_wipeout(parser):
 
 def colorize(self, mode, text):
     if mode == 'already_parsed':  return self.style.SQL_COLTYPE(text)        ## green
+    if mode == 'command':         return self.style.HTTP_SERVER_ERROR(text)  ## bold magenta
+    if mode == 'country_error':   return self.style.NOTICE(text)             ## red
     if mode == 'country_success': return self.style.SQL_COLTYPE(text)        ## green
     if mode == 'country_warning': return self.style.SQL_KEYWORD(text)        ## yellow
-    if mode == 'country_error':   return self.style.NOTICE(text)             ## red
-    if mode == 'command':         return self.style.HTTP_SERVER_ERROR(text)  ## bold magenta
-    if mode == 'copying':         return self.style.HTTP_INFO(text)          ## bold white
-    if mode == 'creating':        return self.style.HTTP_INFO(text)          ## bold white
     if mode == 'error':           return self.style.ERROR(text)              ## bold red
-    if mode == 'warning':         return self.style.SQL_KEYWORD(text)        ## yellow
     if mode == 'host_name':       return self.style.HTTP_SUCCESS(text)       ## white
     if mode == 'invalid':         return self.style.NOTICE(text)             ## red
-    if mode == 'removing':        return self.style.SQL_KEYWORD(text)        ## yellow
+    if mode == 'warning':         return self.style.SQL_KEYWORD(text)        ## yellow
     if mode == 'ymdhms':          return self.style.HTTP_NOT_MODIFIED(text)  ## cyan
+
+    if mode in [
+        'dropping',
+        'removing',
+    ]:
+        return self.style.SQL_KEYWORD(text)  ## yellow
+
+    if mode in [
+        'copying',
+        'creating',
+    ]:
+        return self.style.HTTP_INFO(text)  ## bold white
 
     if mode in [
         'accomplished_in',
@@ -592,6 +597,9 @@ def log(self, command, host_name, dest_file, msg, echo=True):
         ## in rotate.py
         elif 'creating' in msg:
             msg_ = colorize(self, 'creating', msg)
+
+        elif 'dropping' in msg:
+            msg_ = colorize(self, 'dropping', msg)
 
         elif 'copying' in msg:
             msg_ = colorize(self, 'copying', msg)
