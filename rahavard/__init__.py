@@ -22,7 +22,6 @@ from rahavard.utils import (
     create_id_for_htmx_indicator,
     get_date_time_live,
     get_list_of_files,
-    get_max_id,
     get_percent,
     intcomma_persian,
     persianize,
