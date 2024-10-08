@@ -2,8 +2,6 @@ from rahavard.utils import (
     DU_CMD,
     HMS_REGEX,
     JALALI_FORMAT,
-    MAX_FAKE_LOGS,
-    SECONDS_PER_DAY,
     YMD_REGEX,
 
     contains_ymd,

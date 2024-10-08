@@ -69,6 +69,7 @@ with
 exit
 
 sudo pkg install -y vim bash python git apache24 xfce wget curl gpart jq rsync
+sudo pkg install -y pkgconf  ## needed for installing mysql package with pip
 sudo pkg install -y syslog-ng p5-Net-Nslookup bind-tools
 sudo pkg install -y e2fsprogs   ## this will install chattr and lsattr
 sudo pkg install -y xorg xorg-server xorg-apps xorg-drivers
@@ -77,10 +78,12 @@ sudo pkg install -y open-vm-tools-nox11   ## for VMs only
 ## mysql (using ports)
 pkg search databases/mysql*
 sudo pkg install -y databases/mysql84-server
+sudo pkg install -y databases/mysql84-client
 ##
 ## mysql (online)
 sudo pkg search ^mysql
 sudo pkg install -y mysql84-server
+sudo pkg install -y mysql84-client
 
 ## install from ports
 sudo pkg install -y sysutils/htop
@@ -449,10 +452,10 @@ Paste:
 1 * * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action=storage
 
 ## at 00:03
-3 0 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action=parse --batch=one    (--demo)
+3 0 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action=parse --batch=one
 
 ## at 00:30
-30 0 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action=parse --batch=two    (--demo)
+30 0 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action=parse --batch=two
 
 ## at every 30th minute
 */30 * * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action=hourly-parse

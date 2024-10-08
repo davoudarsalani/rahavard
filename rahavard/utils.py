@@ -17,8 +17,6 @@ import jdatetime
 
 
 JALALI_FORMAT = '%A %H %M %S %d %m %Y'
-MAX_FAKE_LOGS = 14
-SECONDS_PER_DAY = 24 * 60 * 60
 
 YMD_REGEX = r'[0-9]{4}-[0-9]{2}-[0-9]{2}'
 HMS_REGEX = r'[0-9]{2}:[0-9]{2}:[0-9]{2}'
@@ -505,6 +503,7 @@ def colorize(self, mode, text):
         'accomplished_in',
         'compressed_in',
         'done',
+        'dropped',
         'fetched_in',
         'parsed_in',
         'success',
