@@ -457,8 +457,8 @@ Paste:
 ## at 00:30
 30 0 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action=parse --batch=two
 
-## at every 30th minute
-*/30 * * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action=hourly-parse
+## at minute 2 [every hour]
+2 * * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action=hourly-parse
 ```
 
 <br>
