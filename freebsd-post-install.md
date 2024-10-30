@@ -57,7 +57,7 @@ Replace
 with
 ```
 %wheel ALL=(ALL:ALL) ALL
-%wheel ALL=(ALL) NOPASSWD: /usr/sbin/service apache24 restart, /usr/sbin/service * status, /usr/local/bin/certbot renew
+%wheel ALL=(ALL) NOPASSWD: /usr/sbin/service apache24 restart, /usr/sbin/service * status, /usr/bin/du *, /usr/local/bin/certbot renew
 ```
 
 <br>
