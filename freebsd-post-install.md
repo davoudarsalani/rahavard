@@ -590,7 +590,7 @@ name=live_parse
 rcvar="${name}_enable"
 
 pidfile="/var/run/${name}.pid"
-live_parse_user="<REMOTE_USERNAME>"
+live_parse_user="root"
 
 command="/FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python"
 # command_interpreter=""
@@ -598,6 +598,7 @@ command_args="/FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py live-parse &"
 
 stop_cmd="${name}_stop"
 status_cmd="${name}_status"
+
 
 live_parse_status(){
   ## JUMP_1 using live-parse (not live_parse)
@@ -613,6 +614,7 @@ live_parse_status(){
     return 1
   fi  
 }
+
 
 live_parse_stop(){
   ## JUMP_1
