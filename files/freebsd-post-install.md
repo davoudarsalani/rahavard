@@ -142,31 +142,32 @@ vim ~/.bashrc
 
 Paste:
 ```
-## https://superuser.com/a/1519118
-##
-## set rgb colors
-ps_cname='167;95;180'
-ps_cdir='88;131;187'
-ps_cexit='236;39;39'
-##
-## do NOT change
-ps_code_color_name="\x1b[38;2;${ps_cname}m"
-ps_code_color_dir="\x1b[38;2;${ps_cdir}m"
-ps_code_color_exit="\x1b[38;2;${ps_cexit}m"
-ps_code_color_reset='\x1b[0m'
-##
-## do NOT change
-ps_c_name=$(printf "${ps_code_color_name}")
-ps_c_dir=$(printf "${ps_code_color_dir}")
-ps_c_exit=$(printf "${ps_code_color_exit}")
-ps_c_rst=$(printf "${ps_code_color_reset}")
-##
-PS1='$(xt_stts="$?";[ "$xt_stts" -gt 0 ] && EXIT=" $xt_stts"
-echo "\[${ps_c_name}\]\u@\H\[${ps_c_rst}\] \[${ps_c_dir}\]\w\[${ps_c_rst}\]\[${ps_c_exit}\]${EXIT}\[${ps_c_rst}\] \$ ")'
-##
-## previously:
-# PS1='$(xt_stts="$?";[ "$xt_stts" -gt 0 ] && EXIT=" $xt_stts"
-# echo "-=[ \u@\H \w${EXIT} \$ ]=- ")'
+if [ $UID -gt 0 ]; then
+  ## https://superuser.com/a/1519118
+  ##
+  ## set rgb colors
+  ps_cname='167;95;180'
+  ps_cdir='88;131;187'
+  ps_cexit='236;39;39'
+  ##
+  ## do NOT change
+  ps_code_color_name="\x1b[38;2;${ps_cname}m"
+  ps_code_color_dir="\x1b[38;2;${ps_cdir}m"
+  ps_code_color_exit="\x1b[38;2;${ps_cexit}m"
+  ps_code_color_reset='\x1b[0m'
+  ##
+  ## do NOT change
+  ps_c_name=$(printf "${ps_code_color_name}")
+  ps_c_dir=$(printf "${ps_code_color_dir}")
+  ps_c_exit=$(printf "${ps_code_color_exit}")
+  ps_c_rst=$(printf "${ps_code_color_reset}")
+  ##
+  PS1='$(xt_stts="$?";[ "$xt_stts" -gt 0 ] && EXIT=" $xt_stts"
+  echo "\[${ps_c_name}\]\u@\H\[${ps_c_rst}\] \[${ps_c_dir}\]\w\[${ps_c_rst}\]\[${ps_c_exit}\]${EXIT}\[${ps_c_rst}\] \$ ")'
+  ## previously:
+  # PS1='$(xt_stts="$?";[ "$xt_stts" -gt 0 ] && EXIT=" $xt_stts"
+  # echo "-=[ \u@\H \w${EXIT} \$ ]=- ")'
+fi
 
 export HISTCONTROL=erasedups:ignoredups:ignorespace
 export HISTTIMEFORMAT='%Y%m%d%H%M%S '
