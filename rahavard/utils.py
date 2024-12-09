@@ -144,7 +144,6 @@ def convert_second(seconds, verbose=True):
         result = sub(r'(01 [a-z]+)s, ', r'\1, ', result)
         result = sub(r'(01 [a-z]+)s$', r'\1', result)
 
-        result = sub(r'^0([0-9])', r'\1', result)         ## 02 days, ...       -> 2 days, ...
         result = sub(r', 0([0-9])', r', \1', result)      ## ..., 01 hour, ...  -> ..., 1 hour, ...
         result = sub(r'and 0([0-9])', r'and \1', result)  ## ... and 05 hrs ... -> ... and 5 hrs ... (this seems to be a bug in the original function)
 
@@ -152,6 +151,10 @@ def convert_second(seconds, verbose=True):
         result = sub(r'^0+:0([0-9]):', r'\1:', result)          ## 0:00:12 -> 0:12
                                                                 ## 0:08:12 -> 8:12
         result = sub(r'^0+:([1-9])([0-9]):', r'\1\2:', result)  ## 0:10:12 -> 10:12
+
+    ## 02 days, ... -> 2 days, ...
+    ## 01:23        -> 1:23
+    result = sub(r'^0([0-9])', r'\1', result)
 
     return result
 
