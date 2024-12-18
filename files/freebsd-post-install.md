@@ -342,6 +342,77 @@ startx
 
 <br>
 
+## `TOR`
+
+> [andregodinho1.medium.com](https://andregodinho1.medium.com/navigating-anonimized-on-the-web-with-tor-and-privoxy-on-a-kali-linux-20-55b6f7a57269), [forums.freebsd.org](https://forums.freebsd.org/threads/howto-use-tor-network-and-web-proxy.40307/)
+
+<br>
+
+Install:
+```
+sudo pkg install -y security/tor security/torsocks www/privoxy
+```
+
+<br>
+
+Copy sample configuration file:
+```
+sudo cp /usr/local/etc/tor/torrc.sample /usr/local/etc/tor/torrc
+```
+
+<br>
+
+Enable `tor` and `privoxy`:
+```
+sudo vim /etc/rc.conf
+```
+
+Paste:
+```
+tor_enable="YES"
+privoxy_enable="YES"
+```
+
+<br>
+
+Start `privoxy` manually, and copy the necessary config files:
+```
+sudo /usr/local/etc/rc.d/privoxy forcestart
+```
+
+<br>
+
+Tell forward-sock which host and port to use (`127.0.0.1:9050`):
+```
+sudo vim /usr/local/etc/privoxy/config
+```
+
+Paste:
+```
+forward-socks5 / 127.0.0.1:9050 .
+```
+
+<br>
+
+
+```
+sudo service tor restart
+sudo service privoxy restart
+```
+
+<br>
+
+To check `IsTor`:
+```
+curl -s --socks5-hostname 127.0.0.1:9050 https://check.torproject.org/api/ip; echo
+```
+If ok, it should return:
+```
+{"IsTor":true,"IP":"<SOME_IP>"}
+```
+
+<br>
+
 ## `syslog-ng`
 
 > [blog.matrixpost.net](https://blog.matrixpost.net/set-up-a-central-monitoring-server-with-syslog-ng-on-freebsd/), [syslog-ng.com](https://www.syslog-ng.com/technical-documents/doc/syslog-ng-open-source-edition/3.16/administration-guide/58)
