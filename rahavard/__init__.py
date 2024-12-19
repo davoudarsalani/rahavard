@@ -31,7 +31,7 @@ from rahavard.utils import (
     make_inactive,
 
     abort,
-    add_yearmonthday_firstn_lastn_wipeout,
+    add_yearmonthday_force,
     colorize,
     get_command,
     get_command_log_file,

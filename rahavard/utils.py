@@ -406,116 +406,91 @@ def abort(self, text=None):
     print(colorize(self, 'error', 'aborting...'))
     print()
 
-def add_yearmonthday_firstn_lastn_wipeout(parser, exclude=None, for_mysql=False):
+def add_yearmonthday_force(parser, for_mysql=False):
     ## __DATABASE_YMD_PATTERN__
 
-    if not exclude or '--year-months' not in exclude:
-        if for_mysql:
-            help_msg = 'year-month(s) in YYYY_MM format, e.g. 2024_12 or 2024_05 2024_07 2024_11'
-        else:
-            help_msg = 'year-month(s) in YYYY-MM format, e.g. 2024-12 or 2024-05 2024-07 2024-11'
-        parser.add_argument(
-            # '-x',  ## JUMP_2 commented due to lack of a proper name for it
-            '--year-months',
-            default=[],
-            nargs='+',  ## one or more
-            type=str,
-            help=help_msg,
-        )
-    if not exclude or '--year-month-days' not in exclude:
-        if for_mysql:
-            help_msg = 'year-month-day(s) in YYYY_MM_DD format, e.g. 2024_12_03 or 2024_05_09 2024_07_29 2024_11_02'
-        else:
-            help_msg = 'year-month-day(s) in YYYY-MM-DD format, e.g. 2024-12-03 or 2024-05-09 2024-07-29 2024-11-02'
-        parser.add_argument(
-            # '-x',  ## JUMP_2
-            '--year-month-days',
-            default=[],
-            nargs='+',  ## one or more
-            type=str,
-            help=help_msg,
-        )
+    if for_mysql:
+        help_msg = 'year-month(s) in YYYY_MM format, e.g. 2024_12 or 2024_05 2024_07 2024_11'
+    else:
+        help_msg = 'year-month(s) in YYYY-MM format, e.g. 2024-12 or 2024-05 2024-07 2024-11'
+    parser.add_argument(
+        # '-x',  ## JUMP_2 commented due to lack of a proper name for it
+        '--year-months',
+        default=[],
+        nargs='+',  ## one or more
+        type=str,
+        help=help_msg,
+    )
+    if for_mysql:
+        help_msg = 'year-month-day(s) in YYYY_MM_DD format, e.g. 2024_12_03 or 2024_05_09 2024_07_29 2024_11_02'
+    else:
+        help_msg = 'year-month-day(s) in YYYY-MM-DD format, e.g. 2024-12-03 or 2024-05-09 2024-07-29 2024-11-02'
+    parser.add_argument(
+        # '-x',  ## JUMP_2
+        '--year-month-days',
+        default=[],
+        nargs='+',  ## one or more
+        type=str,
+        help=help_msg,
+    )
 
-    if not exclude or '--start-year-month' not in exclude:
-        if for_mysql:
-            help_msg = 'start year-month in YYYY_MM format, e.g. 2024_10'
-        else:
-            help_msg = 'start year-month in YYYY-MM format, e.g. 2024-10'
-        parser.add_argument(
-            # '-x',  ## JUMP_2
-            '--start-year-month',
-            default=None,
-            type=str,
-            help=help_msg,
-        )
-    if not exclude or '--start-year-month-day' not in exclude:
-        if for_mysql:
-            help_msg = 'start year-month-day in YYYY_MM_DD format, e.g. 2024_10_30'
-        else:
-            help_msg = 'start year-month-day in YYYY-MM-DD format, e.g. 2024-10-30'
-        parser.add_argument(
-            # '-x',  ## JUMP_2
-            '--start-year-month-day',
-            default=None,
-            type=str,
-            help=help_msg,
-        )
+    if for_mysql:
+        help_msg = 'start year-month in YYYY_MM format, e.g. 2024_10'
+    else:
+        help_msg = 'start year-month in YYYY-MM format, e.g. 2024-10'
+    parser.add_argument(
+        # '-x',  ## JUMP_2
+        '--start-year-month',
+        default=None,
+        type=str,
+        help=help_msg,
+    )
+    if for_mysql:
+        help_msg = 'start year-month-day in YYYY_MM_DD format, e.g. 2024_10_30'
+    else:
+        help_msg = 'start year-month-day in YYYY-MM-DD format, e.g. 2024-10-30'
+    parser.add_argument(
+        # '-x',  ## JUMP_2
+        '--start-year-month-day',
+        default=None,
+        type=str,
+        help=help_msg,
+    )
 
-    if not exclude or '--end-year-month' not in exclude:
-        if for_mysql:
-            help_msg = 'end year-month in YYYY_MM format, e.g. 2024_12'
-        else:
-            help_msg = 'end year-month in YYYY-MM format, e.g. 2024-12'
-        parser.add_argument(
-            # '-x',  ## JUMP_2
-            '--end-year-month',
-            default=None,
-            type=str,
-            help=help_msg,
-        )
-    if not exclude or '--end-year-month-day' not in exclude:
-        if for_mysql:
-            help_msg = 'end year-month-day in YYYY_MM_DD format, e.g. 2024_12_15'
-        else:
-            help_msg = 'end year-month-day in YYYY-MM-DD format, e.g. 2024-12-15'
-        parser.add_argument(
-            # '-x',  ## JUMP_2
-            '--end-year-month-day',
-            default=None,
-            type=str,
-            help=help_msg,
-        )
+    if for_mysql:
+        help_msg = 'end year-month in YYYY_MM format, e.g. 2024_12'
+    else:
+        help_msg = 'end year-month in YYYY-MM format, e.g. 2024-12'
+    parser.add_argument(
+        # '-x',  ## JUMP_2
+        '--end-year-month',
+        default=None,
+        type=str,
+        help=help_msg,
+    )
+    if for_mysql:
+        help_msg = 'end year-month-day in YYYY_MM_DD format, e.g. 2024_12_15'
+    else:
+        help_msg = 'end year-month-day in YYYY-MM-DD format, e.g. 2024-12-15'
+    parser.add_argument(
+        # '-x',  ## JUMP_2
+        '--end-year-month-day',
+        default=None,
+        type=str,
+        help=help_msg,
+    )
 
-    if not exclude or '--first-n' not in exclude:
-        parser.add_argument(
-            '-f',
-            '--first-n',
-            default=None,
-            type=int,
-            help='first n, e.g. 7',
-        )
-
-    if not exclude or '--last-n' not in exclude:
-        parser.add_argument(
-            '-l',
-            '--last-n',
-            default=None,
-            type=int,
-            help='last n, e.g. 7',
-        )
-
-    if not exclude or '--wipe-out' not in exclude:
-        if for_mysql:
-            help_msg = 'wipe out even if compressed'
-        else:
-            help_msg = 'wipe out even if accomplished'
-        parser.add_argument(
-            '-w',
-            '--wipe-out',
-            default=False,
-            action='store_true',
-            help=help_msg,
-        )
+    if for_mysql:
+        help_msg = 'force even if compressed'
+    else:
+        help_msg = 'force even if accomplished'
+    parser.add_argument(
+        '-f',
+        '--force',
+        default=False,
+        action='store_true',
+        help=help_msg,
+    )
 
 def colorize(self, mode, text):
     if mode == 'already_parsed':  return self.style.SQL_COLTYPE(text)        ## green
