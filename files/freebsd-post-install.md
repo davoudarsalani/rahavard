@@ -77,13 +77,13 @@ sudo pkg install -y open-vm-tools-nox11   ## for VMs only
 
 ## mysql (using ports)
 pkg search databases/mysql*
-sudo pkg install -y databases/mysql84-server
-sudo pkg install -y databases/mysql84-client
+sudo pkg install -y databases/mysql90-server
+sudo pkg install -y databases/mysql90-client
 ##
 ## mysql (online)
 sudo pkg search ^mysql
-sudo pkg install -y mysql84-server
-sudo pkg install -y mysql84-client
+sudo pkg install -y mysql90-server
+sudo pkg install -y mysql90-client
 
 ## install from ports
 sudo pkg install -y sysutils/htop
