@@ -564,7 +564,7 @@ Paste (Using `~` is allowed. The `-u "$USER"` in previous command enables us to 
 2 * * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action hourly-parse
 
 ## at 00:05
-5 0 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action parse --batch both
+5 0 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action parse --batch both --proxy
 ```
 
 <br>
