@@ -683,7 +683,7 @@ Paste:
 #!/bin/sh
 
 # PROVIDE: live_parse
-# REQUIRE: DAEMON
+# REQUIRE: DAEMON mysql-server
 # BEFORE: LOGIN
 # KEYWORD:
 
@@ -703,38 +703,43 @@ stop_cmd="${name}_stop"
 status_cmd="${name}_status"
 
 
+get_pids(){
+  ## using live-parse (not live_parse)
+  ## to look for name of custom Django command
+  ## (as in .../manage.py live-parse)
+  echo "$(pgrep -f 'live-parse')"
+}
+
+
 live_parse_status(){
-  ## JUMP_1 using live-parse (not live_parse)
-  ##        to look for name of custom django command
-  ##        (as in .../manage.py live-parse)
-  pids="$(pgrep -f 'live-parse')"
+  pids="$(get_pids)"
 
   if [ "$pids" ]; then
-    printf 'live_parse is running.\n'
+    printf '%s is running.\n' "$name"
     printf 'PID(s): %s\n' "$pids" | xargs
   else
-    printf 'live_parse is not running.\n'
+    printf '%s is not running.\n' "$name"
     return 1
-  fi  
+  fi
 }
 
 
 live_parse_stop(){
-  ## JUMP_1
-  pids="$(pgrep -f 'live-parse')"
+  pids="$(get_pids)"
 
   if [ "$pids" ]; then
-    printf 'Stopping live_parse:\n'
+    printf 'Stopping %s:\n' "$name"
 
     printf '%s\n' "$pids" | xargs -r kill -9 && {
-      printf '  SUCCESS\n' 
+      rm -f "$pidfile"
+      printf '  SUCCESS\n'
     } || {
       printf '  ERROR: did not stop\n'
       return 1
     }
 
   else
-    printf 'live_parse was not running.\n'
+    printf '%s was not running.\n' "$name"
     return 1
   fi
 }
