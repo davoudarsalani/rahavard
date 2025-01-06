@@ -462,8 +462,12 @@ sudo vim /usr/local/etc/syslog-ng.conf
 Paste:
 ```
 @include "/usr/local/etc/syslog-ng/conf.d/"
+```
 
-## NOTE: If the folders above do not exist, create them:
+<br>
+
+NOTE: If the folders above do not exist, create them:
+```
 sudo mkdir -p /usr/local/etc/syslog-ng/conf.d/
 ```
 
