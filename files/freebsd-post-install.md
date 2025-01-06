@@ -464,8 +464,6 @@ Paste:
 @include "/usr/local/etc/syslog-ng/conf.d/"
 ```
 
-<br>
-
 NOTE: If the folders above do not exist, create them:
 ```
 sudo mkdir -p /usr/local/etc/syslog-ng/conf.d/
