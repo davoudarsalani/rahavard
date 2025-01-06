@@ -487,8 +487,8 @@ source s_loghost {
 
 destination d_host_daily {
   file(
-    "/FOO/BAR/BAZ/logs/$YEAR-$MONTH-$DAY--$WEEKDAY.log"
-    template("$YEAR-$MONTH-$DAY $HOUR:$MIN:$SEC $HOST ($FACILITY/$LEVEL) [$PROGRAM] $MSGONLY\n")
+    "/FOO/BAR/BAZ/logs/${YEAR}-${MONTH}-${DAY}--${WEEKDAY}.log"
+    template("${YEAR}-${MONTH}-${DAY} ${HOUR}:${MIN}:${SEC} ${HOST} (${FACILITY}/${LEVEL}) [${PROGRAM}] ${MSGONLY}\n")
     owner(<REMOTE_USER>)
     group(<REMOTE_USER>)
     perm(0600)
@@ -506,7 +506,7 @@ destination d_live_parse {
     "<YOUR_IP>"
     transport("udp")
     port(<YOUR_PORT>)
-    template("$YEAR-$MONTH-$DAY $HOUR:$MIN:$SEC $HOST ($FACILITY/$LEVEL) [$PROGRAM] $MSGONLY\n")
+    template("${YEAR}-${MONTH}-${DAY} ${HOUR}:${MIN}:${SEC} ${HOST} (${FACILITY}/${LEVEL}) [${PROGRAM}] ${MSGONLY}\n")
     template_escape(no)
   );
 };
