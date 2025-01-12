@@ -68,7 +68,7 @@ with
 ## exit from root
 exit
 
-sudo pkg install -y vim bash python git apache24 xfce wget curl gpart jq rsync
+sudo pkg install -y vim bash python git apache24 xfce wget curl tmux gpart jq rsync
 sudo pkg install -y pkgconf  ## needed for installing mysql package with pip
 sudo pkg install -y syslog-ng p5-Net-Nslookup bind-tools
 sudo pkg install -y e2fsprogs   ## this will install chattr and lsattr
@@ -193,6 +193,12 @@ function lsl {
 ## to suppress the message:
 ## "You have new mail in /var/mail/$USER"
 unset MAILCHECK
+
+if [ "$(pgrep 'tmux')" ]; then
+    tmux new &>/dev/null
+else
+    tmux new -s 1 &>/dev/null
+fi
 ```
 
 Source `bashrc`:
@@ -206,6 +212,35 @@ source ~/.bashrc
 ```
 echo 'source ~/.bashrc' >> ~/.bash_profile
 sudo reboot
+```
+
+<br>
+
+## TMUX
+
+```
+vim ~/.tmux.conf
+```
+
+Paste:
+```
+# set prefix
+set -g prefix C-a
+unbind-key C-b
+bind-key C-a send-prefix
+
+set  -g base-index 1             ## start windows numbering at 1
+set  -g display-time 3000        ## display message time
+set  -g display-panes-time 3000  ## display panes time
+set  -g clock-mode-style 12      ## 24
+set  -g history-limit 50000
+setw -g pane-base-index 1        ## start pane numbering at 1
+setw -g automatic-rename on      ## rename window to reflect current program
+
+## inactive window
+set-window-option -g window-status-style          fg=#ffffff,bg=default
+## active window
+set-window-option -g window-status-current-style  fg=#000000,bg=default
 ```
 
 <br>
