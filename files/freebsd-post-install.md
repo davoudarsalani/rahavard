@@ -520,6 +520,7 @@ source s_loghost {
   );
 };
 
+
 destination d_host_daily {
   file(
     "/FOO/BAR/BAZ/logs/${YEAR}-${MONTH}-${DAY}--${WEEKDAY}.log"
@@ -534,6 +535,7 @@ destination d_host_daily {
   );
 };
 
+
 ## forward logs to live-parse
 ## (needed for live_parse service)
 destination d_live_parse {
@@ -546,12 +548,22 @@ destination d_live_parse {
   );
 };
 
+
+filter f_short_msg {
+  "$(length ${MSG})" < 1024;
+};
+
+
 log {
   source(s_loghost);
   destination(d_host_daily);
+
+  ## filter lines whose MSG length is under 1024
+  ## to avoid 'Message too long' error
+  ## due to udp limitations
+  filter(f_short_msg);
   destination(d_live_parse);
 };
-
 ```
 
 <br>
