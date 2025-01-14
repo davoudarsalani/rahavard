@@ -474,9 +474,9 @@ syslog_ng_enable="YES"
 
 <br>
 
-To check syntax:
+To look out for syntax errors:
 ```
-syslog-ng -s
+syslog-ng --syntax-only
 ```
 
 <br>
