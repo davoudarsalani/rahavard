@@ -450,7 +450,7 @@ If ok, it should return:
 
 ## `syslog-ng`
 
-> [blog.matrixpost.net](https://blog.matrixpost.net/set-up-a-central-monitoring-server-with-syslog-ng-on-freebsd/), [syslog-ng.com](https://www.syslog-ng.com/technical-documents/doc/syslog-ng-open-source-edition/3.16/administration-guide/58)
+> [syslog-ng.github.io](https://syslog-ng.github.io/admin-guide/README), [blog.matrixpost.net](https://blog.matrixpost.net/set-up-a-central-monitoring-server-with-syslog-ng-on-freebsd/)
 
 <br>
 
