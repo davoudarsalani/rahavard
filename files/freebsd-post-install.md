@@ -557,11 +557,17 @@ filter f_short_msg {
 log {
   source(s_loghost);
   destination(d_host_daily);
+};
+
+
+log {
+  source(s_loghost);
 
   ## filter lines whose MSG length is under 1024
   ## to avoid 'Message too long' error
   ## due to udp limitations
   filter(f_short_msg);
+
   destination(d_live_parse);
 };
 ```
