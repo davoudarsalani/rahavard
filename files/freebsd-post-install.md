@@ -590,8 +590,8 @@ sudo crontab -e -u "$USER"
 ```
 
 Paste:
-*Note 1: Using `~` is allowed because of the `-u "$USER"` in the command above*
-*Note 2: Use absolute paths for shell commands, i.e. `/usr/local/bin/sudo` or `/usr/sbin/service`*
+- *Using `~` is allowed if we use `-u "$USER"` in the command above*
+- *Use absolute paths for shell commands, i.e. `/usr/local/bin/sudo` or `/usr/sbin/service`*
 ```
 ## at minute 0 [every hour]
 0 * * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action dumpdata
