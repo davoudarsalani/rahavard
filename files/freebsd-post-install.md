@@ -68,12 +68,12 @@ with
 ## exit from root
 exit
 
-sudo pkg install -y vim bash python git apache24 xfce wget curl tmux gpart jq rsync
-sudo pkg install -y pkgconf  ## needed for installing mysql package with pip
+sudo pkg install -y apache24 bash curl git gpart jq python redis rsync tmux vim wget xfce
+sudo pkg install -y pkgconf    ## needed for installing mysql package with pip
 sudo pkg install -y syslog-ng p5-Net-Nslookup bind-tools
-sudo pkg install -y e2fsprogs   ## this will install chattr and lsattr
+sudo pkg install -y e2fsprogs    ## this will install chattr and lsattr
 sudo pkg install -y xorg xorg-server xorg-apps xorg-drivers
-sudo pkg install -y open-vm-tools-nox11   ## for VMs only
+sudo pkg install -y open-vm-tools-nox11    ## for VMs only
 
 ## mysql (using ports)
 pkg search databases/mysql*
@@ -112,7 +112,7 @@ sudo cp /usr/share/zoneinfo/Asia/Tehran /etc/localtime  ## NOTE do this last
 
 <br>
 
-## Enable `apache24` and `mysql`
+## Enable `apache24`, `mysql` and `redis`
 
 ```
 sudo vim /etc/rc.conf
@@ -122,6 +122,7 @@ Paste:
 ```
 apache24_enable="YES"
 mysql_enable="YES"
+redis_enable="YES"
 ```
 
 <br>
