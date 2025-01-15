@@ -194,10 +194,8 @@ function lsl {
 ## "You have new mail in /var/mail/$USER"
 unset MAILCHECK
 
-if [ "$(pgrep 'tmux')" ]; then
-    tmux new &>/dev/null
-else
-    tmux new -s 1 &>/dev/null
+if [ ! "$(pgrep 'tmux')" ]; then
+    tmux
 fi
 ```
 
