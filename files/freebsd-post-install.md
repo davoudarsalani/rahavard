@@ -615,11 +615,11 @@ Paste:
 ## at minute 1 [every hour]
 1 * * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action storage
 
-## at minute 2 [every hour]
-2 * * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action hourly-parse
+## at minute 2 past every hour from 5 through 23 [05:02, 06:02, ..., 23:02]
+2 5-23 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action hourly-parse
 
-## at 00:05
-5 0 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action parse --batch both --proxy
+## at 00:10
+10 0 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions --action parse --batch both --proxy
 ```
 
 <br>
