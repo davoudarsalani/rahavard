@@ -85,14 +85,15 @@ def convert_byte(size_in_bytes, to_persian=False):
     return f'{conv}{suff[i]}'
 
 def convert_millisecond(ms, verbose=True):
-    ## the input is in milliseconds
-    ## so, first it should be converted to seconds (by /1000)
-    second = ms / 1000
-
-    return convert_second(second, verbose=verbose)
+    return convert_second(
+        ms / 1000,  ## milliseconds -> seconds
+        verbose=verbose,
+    )
 
 def convert_second(seconds, verbose=True):
-    seconds = int(seconds)
+    ## used float instead of int
+    ## to prevent turning 0.56 into 0
+    seconds = float(seconds)
 
     if seconds == 0:
         if verbose:
