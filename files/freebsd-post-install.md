@@ -645,7 +645,7 @@ sudo vim /usr/local/etc/redis.conf
 
 Replace
 ```
-# requirepass ...
+# requirepass foobared
 ```
 with
 ```
