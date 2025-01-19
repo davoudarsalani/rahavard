@@ -112,7 +112,7 @@ sudo cp /usr/share/zoneinfo/Asia/Tehran /etc/localtime  ## NOTE do this last
 
 <br>
 
-## Enable `apache24`, `mysql` and `redis`
+## Enable `apache24` and `mysql`
 
 ```
 sudo vim /etc/rc.conf
@@ -122,7 +122,6 @@ Paste:
 ```
 apache24_enable="YES"
 mysql_enable="YES"
-redis_enable="YES"
 ```
 
 <br>
@@ -625,9 +624,47 @@ Paste:
 
 <br>
 
+## Configure `redis`
+
+Enable:
+```
+sudo vim /etc/rc.conf
+```
+
+Paste:
+```
+redis_enable="YES"
+```
+
+<br>
+
+Configure:
+```
+sudo vim /usr/local/etc/redis.conf
+```
+
+Replace
+```
+# requirepass ...
+```
+with
+```
+requirepass <YOUR_PASSWORD>
+```
+- *NOTE: no quotes around <YOUR_PASSWORD>*
+
+<br>
+
+Restart:
+```
+sudo service redis restart
+```
+
+<br>
+
 ## Configure `ntp` *(for Non-Virtual Servers Only)*
 
-Enable `ntp`:
+Enable:
 ```
 sudo vim /etc/rc.conf
 ```
@@ -642,7 +679,7 @@ ntpd_enable="YES"
 
 <br>
 
-Configure `ntp`:
+Configure:
 ```
 sudo vim /etc/ntp.conf
 ```
@@ -662,7 +699,7 @@ server <YOUR_IP>
 
 <br>
 
-Restart `ntp`:
+Restart:
 ```
 sudo service ntpd restart
 ```
