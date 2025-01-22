@@ -610,7 +610,7 @@ Paste:
 ## only on log analyzer
 
 ## at minute 1 [every hour]
-1 * * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions-analyzer --action storage
+1 * * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions-analyzer --action statistics
 
 ## at minute 2 past every hour from 5 through 23 [05:02, 06:02, ..., 23:02]
 2 5-23 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions-analyzer --action hourly-parse
