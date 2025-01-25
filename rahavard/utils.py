@@ -21,12 +21,6 @@ JALALI_FORMAT = '%A %H %M %S %d %m %Y'
 YMD_REGEX = r'[0-9]{4}-[0-9]{2}-[0-9]{2}'
 HMS_REGEX = r'[0-9]{2}:[0-9]{2}:[0-9]{2}'
 
-if not settings.DEBUG:
-    DU_CMD = 'du -h -s -x -A'
-else:
-    DU_CMD = 'du -h -s -x'
-
-
 def contains_ymd(string):
     '''
         returns match for:

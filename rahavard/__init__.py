@@ -1,5 +1,4 @@
 from rahavard.utils import (
-    DU_CMD,
     HMS_REGEX,
     JALALI_FORMAT,
     YMD_REGEX,
