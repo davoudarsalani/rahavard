@@ -1,0 +1,7 @@
+convert_numbers
+django
+jdatetime
+natsort
+setuptools
+wheel
+twine
