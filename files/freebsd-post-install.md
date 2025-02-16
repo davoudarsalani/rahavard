@@ -617,6 +617,12 @@ Paste:
 
 ## at 00:10
 10 0 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions-analyzer --action parse --batch both --proxy; /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py restart-services
+
+## --------------------
+## only on ticketing
+
+## at 00:10
+10 0 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py close-old-tickets
 ```
 
 <br>
