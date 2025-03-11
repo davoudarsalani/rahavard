@@ -168,6 +168,15 @@ sudo service apache24 restart
 
 <br>
 
+To display a list of all virtual hosts:
+```
+sudo apachectl -t -D DUMP_VHOSTS
+```
+- `-t` tells apachectl to run a configuration file syntax test.<br>It checks the configuration files for any syntax errors without starting the server.
+- `-D DUMP_VHOSTS` defines a macro named DUMP_VHOSTS.<br>When Apache is run with this macro, it will print out the list of all configured virtual hosts.
+
+<br>
+
 <br><br><br><br><br>
 
 
