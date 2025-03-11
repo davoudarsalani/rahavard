@@ -52,12 +52,26 @@ import winreg
 from winregistry import open_key  #WinRegistry
 
 
+PARENT_DIR = Path(__file__).resolve().parent
+LOG_FILE = f'{PARENT_DIR}/log'
+
+REBOOT_DELAY = 5  ## seconds
+MAX_LOOPS = 10
+
+
 def display_help():
     print(r'''Help
 >> NOTE: Use Double Quotes ONLY
 -p|--path=  registry path, e.g. "SYSTEM\CurrentControlSet\Control\Terminal Server\RCM\GracePeriod"
 -k|--key=   registry key, e.g. "L$RTMTIMEBOMB_1320153D-8DA3-4e8e-B27B-0D888223A588"''')
     exit()
+
+
+def save_log(msg):
+    ymdhms = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print(msg)
+    with open(LOG_FILE, 'a') as opened:
+        opened.write(f'{ymdhms} {msg}\n')
 
 
 def getopts():
@@ -75,24 +89,10 @@ def getopts():
             elif opt in ('-p', '--path'): _REG_PATH = arg
             elif opt in ('-k', '--key'):  _REG_KEY  = arg
     except Exception as exc:
-        log(f'Error: {exc!r}')
+        save_log(f'Error: {exc!r}')
         display_help()
 
     return _REG_PATH, _REG_KEY
-
-
-PARENT_DIR = Path(__file__).resolve().parent
-LOG_FILE = f'{PARENT_DIR}/log'
-
-REBOOT_DELAY = 5  ## seconds
-MAX_LOOPS = 10
-
-
-def log(msg):
-    ymdhms = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    print(msg)
-    with open(LOG_FILE, 'a') as opened:
-        opened.write(f'{ymdhms} {msg}\n')
 
 
 if __name__ == '__main__':
@@ -108,13 +108,13 @@ if __name__ == '__main__':
     if not REG_PATH or not REG_KEY:
         display_help()
 
-    log('Starting...')
-    log(f'Path: {REG_PATH}')
-    log(f'Key: {REG_KEY}')
+    save_log('Starting...')
+    save_log(f'Path: {REG_PATH}')
+    save_log(f'Key: {REG_KEY}')
 
     while not successful and loop < MAX_LOOPS:
         loop += 1
-        log(f'  Loop #{loop}')
+        save_log(f'  Loop #{loop}')
 
         try:
             with open_key(
@@ -123,20 +123,20 @@ if __name__ == '__main__':
             ) as client:
                 client.delete_key(REG_KEY)
 
-            log('    Success')
+            save_log('    Success')
             successful = True
         except FileNotFoundError as exc:
-            log(f'    Failed: {exc!r}')
+            save_log(f'    Failed: {exc!r}')
             break
         except Exception as exc:
-            log(f'    Failed: {exc!r}')
+            save_log(f'    Failed: {exc!r}')
 
         sleep(1)
 
     if successful:
-        log(f'Rebooting in {REBOOT_DELAY} seconds...')
-        log('------------------')
+        save_log(f'Rebooting in {REBOOT_DELAY} seconds...')
+        save_log('------------------')
         os_system(f'shutdown -t {REBOOT_DELAY} -r -f')
     else:
-        log(f'Failed after {loop} tries.')
-        log('------------------')
+        save_log(f'Failed after {loop} tries.')
+        save_log('------------------')

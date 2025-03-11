@@ -43,5 +43,5 @@ from rahavard.utils import (
     get_command_log_file,
     is_allowed,
     keyboard_interrupt_handler,
-    log,
+    save_log,
 )

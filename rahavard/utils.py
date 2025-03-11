@@ -623,7 +623,7 @@ def keyboard_interrupt_handler(signal, frame):
         returncode=0,
     )
 
-def log(self, command, host_name, dest_file, msg, echo=True):
+def save_log(self, command, host_name, dest_file, msg, echo=True):
     ymdhms = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     msg = to_tilda(msg)
