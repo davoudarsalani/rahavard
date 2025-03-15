@@ -57,35 +57,155 @@ _SIZE_SIFFIXES = {
 
 def contains_ymd(string):
     '''
-    returns True for:
-      .../general/2024-06-02/...
-      .../2024-06-02/...
+    Check if a string contains a date in the format YYYY-MM-DD.
+
+    This function uses a regular expression to determine if the input string contains a date in the format YYYY-MM-DD.
+
+    Args:
+        string (str): The input string to be checked.
+
+    Returns:
+        bool: True if the string contains a date in the format YYYY-MM-DD, False otherwise.
+
+    Examples:
+        >>> contains_ymd("Today's date is 2023-10-05.")
+        True
+        >>> contains_ymd("No date here!")
+        False
+        >>> contains_ymd("The event is on 2023-12-25.")
+        True
+        >>> contains_ymd("Date: 2023/10/05")
+        False
     '''
+
     return match(f'^.*{YMD_REGEX}.*$', string) is not None
 
 def is_ymd(string):
     '''
-    returns True for: 2024-06-02
+    Check if a given string matches the Year-Month-Day (YMD) format.
+
+    Args:
+        string (str): The string to be checked.
+
+    Returns:
+        bool: True if the string matches the YMD format, False otherwise.
+
+    Examples:
+        >>> is_ymd("2023-10-05")
+        True
+        >>> is_ymd("05-10-2023")
+        False
+        >>> is_ymd("2023/10/05")
+        False
+        >>> is_ymd("20231005")
+        False
     '''
+
     return match(f'^{YMD_REGEX}$', string) is not None
 
 def starts_with_ymdhms(string):
     '''
-    returns True  for: 2024-09-08 16:14:30 SOME (user/notice) ...
-    returns False for: Some-DC (auth/info) [sth] Exiting on signal...
+    Check if a string starts with a date and time in the format 'YYYY-MM-DD HH:MM:SS'.
+
+    Args:
+        string (str): The string to be checked.
+
+    Returns:
+        bool: True if the string starts with a date and time in the specified format, False otherwise.
+
+    Examples:
+        >>> starts_with_ymdhms('2023-10-05 12:34:56 Some event')
+        True
+        >>> starts_with_ymdhms('Some event 2023-10-05 12:34:56')
+        False
+        >>> starts_with_ymdhms('2023-10-05 12:34:56')
+        False
+        >>> starts_with_ymdhms('2023-10-05 12:34 Some event')
+        False
     '''
+
     return match(f'^{YMD_REGEX} {HMS_REGEX} ', string) is not None
 
 ## ---------------------------------
 
 def calculate_offset(page_number, limit_to_show):
-    return (page_number - 1) * limit_to_show  ## 0/25/etc.
+    '''
+    Calculate the offset for a given page number and limit to show in a MySQL query.
+
+    Args:
+        page_number (int): The current page number (1-based index).
+        limit_to_show (int): The number of items to show per page (MySQL LIMIT).
+
+    Returns:
+        int: The offset to be used in a MySQL query.
+
+    Examples:
+        >>> calculate_offset(1, 25)
+        0
+
+        >>> calculate_offset(2, 25)
+        25
+
+        >>> calculate_offset(3, 10)
+        20
+    '''
+
+    return (page_number - 1) * limit_to_show
 
 def comes_from_htmx(request):
+    '''
+    Check if the request comes from HTMX.
+
+    This function inspects the headers of a Django request to determine if it 
+    originated from an HTMX request by checking for the presence of the 'HX-Request' header.
+
+    Args:
+        request (HttpRequest): The Django HttpRequest object.
+
+    Returns:
+        bool: True if the request contains the 'HX-Request' header, False otherwise.
+
+    Examples:
+        >>> from django.http import HttpRequest
+        >>> request = HttpRequest()
+        >>> request.headers['HX-Request'] = 'true'
+        >>> comes_from_htmx(request)
+        True
+
+        >>> request = HttpRequest()
+        >>> comes_from_htmx(request)
+        False
+    '''
+
     return 'HX-Request' in request.headers
 
-## https://stackoverflow.com/questions/5194057/better-way-to-convert-file-sizes-in-python
 def convert_byte(size_in_bytes, to_persian=False):
+    '''
+    Convert a size in bytes to a human-readable string format.
+
+    Parameters:
+        size_in_bytes (int or float): The size in bytes to be converted.
+        to_persian (bool): If True, the output will be in Persian. Default is False.
+
+    Returns:
+        str: The human-readable string representation of the size.
+
+    Examples:
+        >>> convert_byte(1024)
+        '1.0KB'
+        >>> convert_byte(1048576)
+        '1.0MB'
+        >>> convert_byte(0)
+        '0B'
+        >>> convert_byte(1024, to_persian=True)
+        '۱.۰ کیلوبایت'
+        >>> convert_byte(1048576, to_persian=True)
+        '۱.۰ مگابایت'
+
+    Note:
+        - https://stackoverflow.com/questions/5194057/better-way-to-convert-file-sizes-in-python
+    '''
+
     if not is_int_or_float(size_in_bytes) or \
        int(size_in_bytes) == 0:
         if to_persian:
@@ -111,14 +231,71 @@ def convert_byte(size_in_bytes, to_persian=False):
     return f'{conv}{suffixes[i]}'
 
 def convert_millisecond(ms, verbose=True):
+    '''
+    Convert milliseconds to seconds and return the result.
+
+    Parameters:
+        ms (int or float): The time in milliseconds to be converted. If the input is not an integer or float, it defaults to 0.
+        verbose (bool): If True, returns a verbose string representation of the time. If False, returns the time as a float. Default is True.
+
+    Returns:
+        str or float: The converted time in seconds, either as a verbose string or a float, depending on the value of `verbose`.
+
+    Examples:
+        >>> convert_millisecond(1500)
+        '1.5 seconds'
+        >>> convert_millisecond(1500, verbose=False)
+        1.5
+        >>> convert_millisecond('invalid', verbose=False)
+        0.0
+        >>> convert_millisecond(0)
+        '0.0 seconds'
+    '''
+
     if not is_int_or_float(ms):
         ms = 0
+
     return convert_second(
-        float(ms) / 1000,  ## milliseconds -> seconds
+        ## milliseconds -> seconds
+        float(ms) / 1000,
+
         verbose=verbose,
     )
 
 def convert_second(seconds, verbose=True):
+    '''
+    Convert a given number of seconds into a human-readable string format.
+
+    Parameters:
+        seconds (int or float): The number of seconds to convert.
+        verbose (bool): If True, returns a verbose string format. If False, returns a compact string format. Default is True.
+
+    Returns:
+        str: The converted time in a human-readable string format.
+
+    Examples:
+        >>> convert_second(0)
+        '0'
+        >>> convert_second(0, verbose=False)
+        '0:00'
+        >>> convert_second(0.56)
+        '~0'
+        >>> convert_second(0.56, verbose=False)
+        '~0:00'
+        >>> convert_second(3661)
+        '1 hr, 1 min and 1 sec'
+        >>> convert_second(3661, verbose=False)
+        '1:01:01'
+        >>> convert_second(86400)
+        '1 day'
+        >>> convert_second(86400, verbose=False)
+        '1:00:00:00'
+        >>> convert_second(31536000)
+        '1 year and 5 days'
+        >>> convert_second(31536000, verbose=False)
+        '1:00:05:00:00:00'
+    '''
+
     if not is_int_or_float(seconds):
         ## JUMP_3
         if verbose:
@@ -200,10 +377,30 @@ def convert_second(seconds, verbose=True):
 
 def convert_string_True_False_None_0(item):
     '''
-        'True'  -> True
-        'False' -> False
-        'None'  -> None
-        '0'     -> 0
+    Convert specific string representations to their corresponding Python objects.
+
+    This function converts the strings 'True', 'False', 'None', and '0' to their
+    respective Python objects: True, False, None, and 0. If the input string does
+    not match any of these, it returns the input string unchanged.
+
+    Parameters:
+        item (str): The input string to be converted.
+
+    Returns:
+        bool, None, int, or str: The converted Python object or the original string
+        if no conversion is applicable.
+
+    Examples:
+        >>> convert_string_True_False_None_0('True')
+        True
+        >>> convert_string_True_False_None_0('False')
+        False
+        >>> convert_string_True_False_None_0('None')
+        None
+        >>> convert_string_True_False_None_0('0')
+        0
+        >>> convert_string_True_False_None_0('Hello')
+        'Hello'
     '''
 
     if item in ['True', 'False', 'None', '0']:
@@ -217,8 +414,23 @@ def convert_string_True_False_None_0(item):
 
 def convert_timestamp_to_jalali(tmstmp=None):
     '''
-    takes timestamp, e.g. 1682598113
-    and converts it to jalali in this format: چهارشنبه ۰۷:۰۶:۳۳ ۳۰-/۰۱/۱۴۰۲
+    Convert a Unix timestamp to a Jalali date string.
+
+    This function converts a given Unix timestamp to a Jalali date string in the format:
+    "weekday hour:minute:second year/month/day". If no timestamp is provided, it returns an empty string.
+
+    Parameters:
+        tmstmp (int, optional): Unix timestamp to be converted. Defaults to None.
+
+    Returns:
+        str: The converted Jalali date string or an empty string if no timestamp is provided.
+
+    Examples:
+        >>> convert_timestamp_to_jalali(1682598113)
+        'چهارشنبه ۰۷:۰۶:۳۳ ۳۰-/۰۱/۱۴۰۲'
+
+        >>> convert_timestamp_to_jalali()
+        ''
     '''
 
     if not tmstmp:
@@ -233,8 +445,24 @@ def convert_timestamp_to_jalali(tmstmp=None):
 
 def convert_to_jalali(gregorian_object=None):
     '''
-    takes gregorian object, like self.created
-    and converts it to jalali in this format: چهارشنبه ۰۷:۰۶:۳۳ ۳۰-/۰۱/۱۴۰۲
+    Convert a Gregorian datetime object to a Jalali datetime string.
+
+    This function takes a Gregorian datetime object and converts it to a Jalali (Persian) datetime string formatted in Persian locale.
+
+    Args:
+        gregorian_object (datetime.datetime, optional): The Gregorian datetime object to convert. Defaults to None.
+
+    Returns:
+        str: The Jalali datetime string in the format 'Weekday Hour:Minute:Second Year/Month/Day'. Returns an empty string if no datetime object is provided.
+
+    Examples:
+        >>> from datetime import datetime
+        >>> gregorian_date = datetime(2023, 10, 5, 15, 30, 45)
+        >>> convert_to_jalali(gregorian_date)
+        'پنج‌شنبه ۱۵:۳۰:۴۵ ۱۴۰۲/۰۷/۱۳'
+
+        >>> convert_to_jalali()
+        ''
     '''
 
     if not gregorian_object:
@@ -250,14 +478,50 @@ def convert_to_jalali(gregorian_object=None):
     return f'{w} {english_to_persian(h)}:{english_to_persian(mi)}:{english_to_persian(s)} {english_to_persian(y)}/{english_to_persian(mo)}/{english_to_persian(d)}'
 
 def convert_to_second(date_obj):
-    return int(date_obj.timestamp())  ## 1698381096
+    '''
+    Convert a datetime object to seconds since the epoch.
+
+    Args:
+        date_obj (datetime): A datetime object to be converted.
+
+    Returns:
+        int: The number of seconds since the epoch.
+
+    Examples:
+        >>> from datetime import datetime
+        >>> date_obj = datetime(2023, 10, 26, 12, 0, 0)
+        >>> convert_to_second(date_obj)
+        1698381096
+
+        >>> date_obj = datetime(1970, 1, 1, 0, 0, 0)
+        >>> convert_to_second(date_obj)
+        0
+
+        >>> date_obj = datetime(2000, 1, 1, 0, 0, 0)
+        >>> convert_to_second(date_obj)
+        946684800
+    '''
+
+    return int(date_obj.timestamp())
 
 def create_id_for_htmx_indicator(*args):
     '''
-        by-date-source-ip-2024-06-30--htmx-indicator
-        OR
-        tops--htmx-indicator
+    Generate a unique ID for an HTMX indicator by joining the provided arguments with hyphens.
+
+    Args:
+        *args: Variable length argument list of strings to be joined.
+
+    Returns:
+        str: A string representing the unique ID for the HTMX indicator.
+
+    Examples:
+        >>> create_id_for_htmx_indicator('by-date', 'source-ip', '2024-06-30')
+        'by-date-source-ip-2024-06-30--htmx-indicator'
+
+        >>> create_id_for_htmx_indicator('tops')
+        'tops--htmx-indicator'
     '''
+
     return sub(
         '-{3,}',
         '--',
@@ -265,10 +529,44 @@ def create_id_for_htmx_indicator(*args):
     )
 
 def create_short_uuid():
+    '''
+    Generate a short UUID string.
+
+    This function creates a UUID (Universally Unique Identifier) and returns a shortened version of it by converting the time_low part of the UUID to a hexadecimal string.
+
+    Returns:
+        str: A shortened UUID string.
+
+    Examples:
+        >>> create_short_uuid()
+        '1a2b3c4d'
+
+        >>> create_short_uuid()
+        '5e6f7a8b'
+    '''
+
     _sample = uuid4()
     return hex(int(_sample.time_low))[2:]
 
 def get_date_time_live():
+    '''
+    Get the current date and time in Persian format.
+
+    This function sets the locale to Persian (fa_IR), retrieves the current Jalali date and time,
+    converts the year, month, day, hour, and minute to Persian numerals, and returns the formatted
+    date and time as an HTTP response.
+
+    Returns:
+        HttpResponse: The current date and time in the format 'YYYY/MM/DD HH:MM' with Persian numerals.
+
+    Examples:
+        >>> get_date_time_live()
+        HttpResponse('۱۴۰۱/۰۱/۱۷ ۱۴:۳۰')
+
+        >>> get_date_time_live()
+        HttpResponse('۱۴۰۱/۰۲/۰۵ ۰۹:۱۵')
+    '''
+
     jdatetime.set_locale('fa_IR')
 
     jdt_now = jdt.now()
@@ -286,18 +584,76 @@ def get_date_time_live():
     return HttpResponse(f'{_year}/{_month}/{_day} {_hour}:{_min}')
 
 def get_list_of_files(directory, extension):
+    '''
+    Get a list of files in a directory with a specific extension, sorted naturally.
+
+    Args:
+        directory (str): The directory to search for files.
+        extension (str): The file extension to filter by.
+
+    Returns:
+        list: A list of absolute file paths with the specified extension, sorted naturally.
+
+    Examples:
+        >>> get_list_of_files('/FOO/BAR/BAZ', 'txt')
+        ['/FOO/BAR/BAZ/file1.txt', '/FOO/BAR/BAZ/file2.txt']
+
+        >>> get_list_of_files('/FOO/BAR/BAZ', 'py')
+        ['/FOO/BAR/BAZ/script1.py', '/FOO/BAR/BAZ/script2.py']
+
+        >>> get_list_of_files('/non/existent/dir', 'txt')
+        []
+
+        >>> get_list_of_files('/FOO/BAR/BAZ', 'jpg')
+        ['/FOO/BAR/BAZ/image1.jpg', '/FOO/BAR/BAZ/image2.jpg']
+    '''
+
     if not path.exists(directory):
         return []
+
     return natsorted([
         path.abspath(path.join(directory, _))
         for _ in listdir(directory)
+
         if all([
-            _.endswith((f'.{extension}')),  ## NOTE do NOT .{extension} -> {extension}
+            ## NOTE do NOT .{extension} -> {extension}
+            _.endswith((f'.{extension}')),
+
             path.isfile(f'{directory}/{_}'),
         ])
     ])
 
 def get_percent(smaller_number, total_number, to_persian=False):
+    '''
+    Calculate the percentage of a smaller number relative to a total number.
+
+    Parameters:
+        smaller_number (int or float): The part of the total number.
+        total_number (int or float): The total number.
+        to_persian (bool): If True, returns the percentage in Persian numerals.
+
+    Returns:
+        str: The percentage as a string, optionally in Persian numerals.
+
+    Examples:
+        >>> get_percent(25, 100)
+        '25'
+        >>> get_percent(0, 100)
+        '0'
+        >>> get_percent(25, 0)
+        '0'
+        >>> get_percent(1, 100)
+        '1'
+        >>> get_percent(99.95232355216523, 100)
+        '99.9'
+        >>> get_percent(25, 100, to_persian=True)
+        '۲۵'
+        >>> get_percent(0, 100, to_persian=True)
+        '۰'
+        >>> get_percent(1, 100, to_persian=True)
+        '۱'
+    '''
+
     if smaller_number == 0 or total_number == 0:
         if to_persian:
             return '۰'
@@ -321,13 +677,31 @@ def get_percent(smaller_number, total_number, to_persian=False):
 
     return _perc
 
-## inspired by:
-## https://stackoverflow.com/questions/50319819/separate-thousands-while-typing-in-farsipersian
 def intcomma_persian(num):
     '''
-        ۱۲۳۴۵۶۷۸    -> ۱۲،۳۴۵،۶۷۸
-        ۱۲۳۴۵۶۷۸.۶۷ -> ۱۲،۳۴۵،۶۷۸.۶۷
-        ۱۲۳۴۵۶۷۸/۶۷ -> ۱۲،۳۴۵،۶۷۸/۶۷
+    Formats a Persian number string by adding commas as thousand separators.
+
+    This function supports both integer and floating-point Persian numbers. 
+    For floating-point numbers, it correctly handles the decimal separator.
+
+    Args:
+        num (str): The Persian number string to be formatted.
+
+    Returns:
+        str: The formatted Persian number string with commas as thousand separators.
+
+    Examples:
+        >>> intcomma_persian('۱۲۳۴۵۶۷۸۹۰')
+        '۱،۲۳۴،۵۶۷،۸۹۰'
+
+        >>> intcomma_persian('۱۲۳۴۵۶۷۸۹۰.۱۲۳۴۵۶۷۸۹۰')
+        '۱،۲۳۴،۵۶۷،۸۹۰.۱۲۳۴۵۶۷۸۹۰'
+
+        >>> intcomma_persian('۱۲۳۴۵۶۷۸۹۰/۱۲۳۴۵۶۷۸۹۰')
+        '۱،۲۳۴،۵۶۷،۸۹۰/۱۲۳۴۵۶۷۸۹۰'
+
+    Note:
+        - https://stackoverflow.com/questions/50319819/separate-thousands-while-typing-in-farsipersian
     '''
 
     commad = ''
@@ -366,23 +740,61 @@ def intcomma_persian(num):
 _INT_OR_FLOAT_PATTERN = compile(r'^[0-9\.]+$')
 def is_int_or_float(string):
     '''
-    returns False for:
-      ''
-      'abc'
-      'a1c'
-      None
-      True
-      False
+    Check if the given string represents an integer or a float.
 
-    returns True for:
-      '1'
-      '1.2'
-      1
-      1.2
+    Args:
+        string (str): The string to be checked.
+
+    Returns:
+        bool: True if the string represents an integer or a float, False otherwise.
+
+    Examples:
+        >>> is_int_or_float("123")
+        True
+        >>> is_int_or_float("123.456")
+        True
+        >>> is_int_or_float(123)
+        True
+        >>> is_int_or_float(123.456)
+        True
+        >>> is_int_or_float("")
+        False
+        >>> is_int_or_float("abc")
+        False
+        >>> is_int_or_float("123abc")
+        False
+        >>> is_int_or_float(None)
+        False
+        >>> is_int_or_float(True)
+        False
+        >>> is_int_or_float(False)
+        False
     '''
+
     return match(_INT_OR_FLOAT_PATTERN, str(string)) is not None
 
 def persianize(number):
+    '''
+    Convert an English number to its Persian equivalent.
+
+    This function takes a number (integer or float) and converts it to a Persian string representation.
+    If the number is a float, it handles the decimal part appropriately.
+
+    Args:
+        number (int or float): The number to be converted.
+
+    Returns:
+        str: The Persian string representation of the number.
+
+    Examples:
+        >>> persianize(123)
+        '۱۲۳'
+        >>> persianize(123.45)
+        '۱۲۳.۴۵'
+        >>> persianize(123.00)
+        '۱۲۳'
+    '''
+
     number = str(number)
 
     ## JUMP_1 is float
@@ -395,6 +807,31 @@ def persianize(number):
     return english_to_persian(int(number))
 
 def sort_dict(dictionary, based_on, reverse):
+    '''
+    Sort a dictionary based on its keys or values.
+
+    Parameters:
+        dictionary (dict): The dictionary to be sorted.
+        based_on (str): The criteria to sort by, either 'key' or 'value'.
+        reverse (bool): If True, sort in descending order, otherwise ascending.
+
+    Returns:
+        dict: A new dictionary sorted based on the specified criteria.
+
+    Examples:
+        >>> sort_dict({'b': 2, 'a': 1, 'c': 3}, based_on='key', reverse=False)
+        {'a': 1, 'b': 2, 'c': 3}
+
+        >>> sort_dict({'b': 2, 'a': 1, 'c': 3}, based_on='key', reverse=True)
+        {'c': 3, 'b': 2, 'a': 1}
+
+        >>> sort_dict({'b': 2, 'a': 1, 'c': 3}, based_on='value', reverse=False)
+        {'a': 1, 'b': 2, 'c': 3}
+
+        >>> sort_dict({'b': 2, 'a': 1, 'c': 3}, based_on='value', reverse=True)
+        {'c': 3, 'b': 2, 'a': 1}
+    '''
+
     if based_on == 'key':
         return dict(natsorted(dictionary.items(), reverse=reverse))
 
@@ -404,15 +841,48 @@ def sort_dict(dictionary, based_on, reverse):
     return dictionary
 
 def to_tilda(text):
+    '''
+    Replaces the home directory path in the given text with a tilde (~).
+
+    Args:
+        text (str): The text in which to replace the home directory path.
+
+    Returns:
+        str: The text with the home directory path replaced by a tilde.
+
+    Examples:
+        >>> to_tilda('/home/my_username/documents/file.txt')
+        '~/documents/file.txt'
+        >>> to_tilda('/home/my_username/')
+        '~/'
+        >>> to_tilda('/home/other_username/file.txt')
+        '/home/other_username/file.txt'
+    '''
     return sub(getenv('HOME'), '~', text)
 
 
+# -----------------
+## functions used in django admin.py
 
-## vvv functions used in django admin.py -----------------
 
 @admin.action(description='Make Active')
 def make_active(modeladmin, request, queryset):
-    ## https://stackoverflow.com/questions/67979442/how-do-i-find-the-class-that-relatedmanager-is-managing-when-the-queryset-is-emp
+    '''
+    Activates the selected queryset objects based on their model type.
+
+    This function updates the `is_active` field to `True` for 'User' model instances
+    and the `active` field to `True` for other model instances in the provided queryset.
+    It also sends a message to the model admin indicating the number of objects that were activated.
+
+    Parameters:
+        modeladmin (ModelAdmin): The ModelAdmin instance that called this action.
+        request (HttpRequest): The current request object.
+        queryset (QuerySet): The queryset of objects selected by the user.
+
+    Note:
+        - https://stackoverflow.com/questions/67979442/how-do-i-find-the-class-that-relatedmanager-is-managing-when-the-queryset-is-emp
+    '''
+
     _caller = modeladmin.model.__name__  ## 'User'/'Router'/...  (-> is str)
     if _caller == 'User':
         inactive_objects = queryset.filter(is_active=False)
@@ -434,7 +904,22 @@ def make_active(modeladmin, request, queryset):
 
 @admin.action(description='Make Inactive')
 def make_inactive(modeladmin, request, queryset):
-    ## https://stackoverflow.com/questions/67979442/how-do-i-find-the-class-that-relatedmanager-is-managing-when-the-queryset-is-emp
+    '''
+    Inactivates the selected queryset objects based on their model type.
+
+    This function updates the `is_active` field to `False` for 'User' model instances
+    and the `active` field to `False` for other model instances in the provided queryset.
+    It also sends a message to the model admin indicating the number of objects that were activated.
+
+    Parameters:
+        modeladmin (ModelAdmin): The ModelAdmin instance that called this action.
+        request (HttpRequest): The current request object.
+        queryset (QuerySet): The queryset of objects selected by the user.
+
+    Note:
+        - https://stackoverflow.com/questions/67979442/how-do-i-find-the-class-that-relatedmanager-is-managing-when-the-queryset-is-emp
+    '''
+
     _caller = modeladmin.model.__name__  ## 'User'/'Router'/...  (-> is str)
     if _caller == 'User':
         active_objects = queryset.filter(is_active=True)
@@ -455,9 +940,9 @@ def make_inactive(modeladmin, request, queryset):
         )
 
 
+# -----------------
+## functions used in django custom commands
 
-
-## vvv functions used in django custom commands -----------------
 
 def abort(self, text=None):
     print()
@@ -593,19 +1078,53 @@ def colorize(self, mode, text):
     return self.style.HTTP_SUCCESS(text)  ## white
 
 def get_command(full_path, drop_extention=True):
-    base = path.basename(full_path)  ## parse_dns.py
+    '''
+    Extracts the command name from a given full path of a Django custom command.
+
+    Args:
+        full_path (str): The full path of the Django custom command file.
+        drop_extention (bool, optional): If True, drops the file extension from the command name. Defaults to True.
+
+    Returns:
+        str: The command name extracted from the full path.
+
+    Examples:
+        >>> get_command('/Foo/BAR/BAZ/commands/parse-dns.py')
+        'parse-dns'
+
+        >>> get_command('/Foo/BAR/BAZ/commands/parse-dns.py', drop_extention=False)
+        'parse-dns.py'
+    '''
+
+    base = path.basename(full_path)  ## parse-dns.py
 
     if drop_extention:
-        root_base, _ = path.splitext(base)  ## parse_dns
+        root_base, _ = path.splitext(base)  ## parse-dns
         return root_base
 
     return base
 
 def get_command_log_file(command):
+    '''
+    Examples:
+        >>> get_command_log_file("live-parse")
+        "/FOO/BAR/BAZ/live-parse.log"
+    '''
+
     return f'{settings.PROJECT_LOGS_DIR}/{command}.log'
 
 def is_allowed(cmd, only, exclude):
-    '''checks if cmd is in either of 'only' or 'exclude' lists'''
+    '''
+    Check if a command is allowed based on inclusion and exclusion lists.
+
+    Args:
+        cmd (str): The command to check.
+        only (list): List of commands that are explicitly allowed. If this list is not empty, only commands in this list are allowed.
+        exclude (list): List of commands that are explicitly disallowed. Commands in this list are not allowed.
+
+    Returns:
+        bool: True if the command is allowed, False otherwise.
+    '''
 
     _allowed = True
 
@@ -616,14 +1135,57 @@ def is_allowed(cmd, only, exclude):
 
     return _allowed
 
-def keyboard_interrupt_handler(signal, frame):
-    print('\n')
+def keyboard_interrupt_handler(sig_num, frame):
+    '''
+    Handle keyboard interrupt signal (SIGINT).
+
+    This function is intended to be used as a signal handler for the SIGINT signal,
+    which is typically triggered by pressing Ctrl+C. When the signal is received,
+    it prints a newline character and raises a CommandError to indicate that the
+    command was interrupted by the user.
+
+    Args:
+        sig_num (int): The signal number.
+        frame (FrameType): The current stack frame.
+
+    Raises:
+        CommandError: Indicates that the command was interrupted by the user.
+
+    Examples:
+        To use this handler, you need to register it with the signal module:
+
+        signal.signal(signal.SIGINT, keyboard_interrupt_handler)
+
+        # Now, pressing Ctrl+C will trigger the handler:
+        while True:
+            try:
+                # Simulate long-running process
+                time.sleep(1)
+            except CommandError as e:
+                print(e)
+                break
+    '''
+
     raise CommandError(
-        f'command interrupted by user (signal: {signal})',
+        f'\ncommand interrupted by user (signal: {sig_num})',
         returncode=0,
     )
 
 def save_log(self, command, host_name, dest_file, msg, echo=True):
+    '''
+    Logs a message to a specified file and optionally prints it with colorized output.
+
+    Args:
+        command (str): The command that was executed.
+        host_name (str): The name of the host where the command was executed.
+        dest_file (str): The file path where the log should be saved.
+        msg (str): The message to log.
+        echo (bool, optional): If True, prints the message to the console with colorized output. Defaults to True.
+
+    Examples:
+        save_log(self, 'live-parse', 'abc-def.local', '/FOO/BAR/BAZ/live-parse.log', 'parse accomplished in 5 minutes')
+    '''
+
     ymdhms = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     msg = to_tilda(msg)
