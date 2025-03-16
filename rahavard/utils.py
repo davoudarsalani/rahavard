@@ -1,12 +1,15 @@
 from django.conf import settings
 from django.contrib import admin
 from django.core.management.base import CommandError
-from django.http import HttpResponse
+from django.db.models import QuerySet
+from django.http import HttpResponse, HttpRequest
 
 from datetime import datetime
 from math import floor, log as math_log, pow as math_pow
 from os import path, listdir, getenv
 from re import match, sub, compile
+from types import FrameType
+from typing import Any, Dict, List, Optional, Union
 from uuid import uuid4
 
 from convert_numbers import english_to_persian
@@ -55,7 +58,7 @@ _SIZE_SIFFIXES = {
 }
 
 
-def contains_ymd(string):
+def contains_ymd(string: str) -> bool:
     '''
     Check if a string contains a date in the format YYYY-MM-DD.
 
@@ -80,7 +83,7 @@ def contains_ymd(string):
 
     return match(f'^.*{YMD_REGEX}.*$', string) is not None
 
-def is_ymd(string):
+def is_ymd(string: str) -> bool:
     '''
     Check if a given string matches the Year-Month-Day (YMD) format.
 
@@ -103,7 +106,7 @@ def is_ymd(string):
 
     return match(f'^{YMD_REGEX}$', string) is not None
 
-def starts_with_ymdhms(string):
+def starts_with_ymdhms(string: str) -> bool:
     '''
     Check if a string starts with a date and time in the format 'YYYY-MM-DD HH:MM:SS'.
 
@@ -128,7 +131,7 @@ def starts_with_ymdhms(string):
 
 ## ---------------------------------
 
-def calculate_offset(page_number, limit_to_show):
+def calculate_offset(page_number: int, limit_to_show: int) -> int:
     '''
     Calculate the offset for a given page number and limit to show in a MySQL query.
 
@@ -152,11 +155,11 @@ def calculate_offset(page_number, limit_to_show):
 
     return (page_number - 1) * limit_to_show
 
-def comes_from_htmx(request):
+def comes_from_htmx(request: HttpRequest) -> bool:
     '''
     Check if the request comes from HTMX.
 
-    This function inspects the headers of a Django request to determine if it 
+    This function inspects the headers of a Django request to determine if it
     originated from an HTMX request by checking for the presence of the 'HX-Request' header.
 
     Args:
@@ -179,12 +182,12 @@ def comes_from_htmx(request):
 
     return 'HX-Request' in request.headers
 
-def convert_byte(size_in_bytes, to_persian=False):
+def convert_byte(size_in_bytes: Union[int, float], to_persian: bool = False) -> str:
     '''
     Convert a size in bytes to a human-readable string format.
 
     Parameters:
-        size_in_bytes (int or float): The size in bytes to be converted.
+        size_in_bytes (Union[int, float]): The size in bytes to be converted.
         to_persian (bool): If True, the output will be in Persian. Default is False.
 
     Returns:
@@ -209,7 +212,7 @@ def convert_byte(size_in_bytes, to_persian=False):
     if not is_int_or_float(size_in_bytes) or \
        int(size_in_bytes) == 0:
         if to_persian:
-            return '. بایت'
+            return '۰ بایت'
         return '0B'
 
     i = int(floor(math_log(size_in_bytes, 1024)))
@@ -230,12 +233,12 @@ def convert_byte(size_in_bytes, to_persian=False):
 
     return f'{conv}{suffixes[i]}'
 
-def convert_millisecond(ms, verbose=True):
+def convert_millisecond(ms: Union[int, float], verbose: bool = True) -> Union[str, float]:
     '''
     Convert milliseconds to seconds and return the result.
 
     Parameters:
-        ms (int or float): The time in milliseconds to be converted. If the input is not an integer or float, it defaults to 0.
+        ms (Union[int, float]): The time in milliseconds to be converted. If the input is not an integer or float, it defaults to 0.
         verbose (bool): If True, returns a verbose string representation of the time. If False, returns the time as a float. Default is True.
 
     Returns:
@@ -262,12 +265,12 @@ def convert_millisecond(ms, verbose=True):
         verbose=verbose,
     )
 
-def convert_second(seconds, verbose=True):
+def convert_second(seconds: Union[int, float], verbose: bool = True) -> str:
     '''
     Convert a given number of seconds into a human-readable string format.
 
     Parameters:
-        seconds (int or float): The number of seconds to convert.
+        seconds (Union[int, float]): The number of seconds to convert.
         verbose (bool): If True, returns a verbose string format. If False, returns a compact string format. Default is True.
 
     Returns:
@@ -375,7 +378,7 @@ def convert_second(seconds, verbose=True):
 
     return result
 
-def convert_string_True_False_None_0(item):
+def convert_string_True_False_None_0(item: str) -> Union[bool, None, int, str]:
     '''
     Convert specific string representations to their corresponding Python objects.
 
@@ -410,9 +413,10 @@ def convert_string_True_False_None_0(item):
             'None': None,
             '0': 0,
         }.get(item)
+
     return item
 
-def convert_timestamp_to_jalali(tmstmp=None):
+def convert_timestamp_to_jalali(tmstmp: Optional[int] = None) -> str:
     '''
     Convert a Unix timestamp to a Jalali date string.
 
@@ -420,7 +424,7 @@ def convert_timestamp_to_jalali(tmstmp=None):
     "weekday hour:minute:second year/month/day". If no timestamp is provided, it returns an empty string.
 
     Parameters:
-        tmstmp (int, optional): Unix timestamp to be converted. Defaults to None.
+        tmstmp (Optional[int]): Unix timestamp to be converted. Defaults to None.
 
     Returns:
         str: The converted Jalali date string or an empty string if no timestamp is provided.
@@ -443,14 +447,14 @@ def convert_timestamp_to_jalali(tmstmp=None):
 
     return f'{w} {english_to_persian(h)}:{english_to_persian(mi)}:{english_to_persian(s)} {english_to_persian(y)}/{english_to_persian(mo)}/{english_to_persian(d)}'
 
-def convert_to_jalali(gregorian_object=None):
+def convert_to_jalali(gregorian_object: Optional[datetime] = None) -> str:
     '''
     Convert a Gregorian datetime object to a Jalali datetime string.
 
     This function takes a Gregorian datetime object and converts it to a Jalali (Persian) datetime string formatted in Persian locale.
 
     Args:
-        gregorian_object (datetime.datetime, optional): The Gregorian datetime object to convert. Defaults to None.
+        gregorian_object (Optional[datetime]): The Gregorian datetime object to convert. Defaults to None.
 
     Returns:
         str: The Jalali datetime string in the format 'Weekday Hour:Minute:Second Year/Month/Day'. Returns an empty string if no datetime object is provided.
@@ -477,7 +481,7 @@ def convert_to_jalali(gregorian_object=None):
 
     return f'{w} {english_to_persian(h)}:{english_to_persian(mi)}:{english_to_persian(s)} {english_to_persian(y)}/{english_to_persian(mo)}/{english_to_persian(d)}'
 
-def convert_to_second(date_obj):
+def convert_to_second(date_obj: datetime) -> int:
     '''
     Convert a datetime object to seconds since the epoch.
 
@@ -504,7 +508,7 @@ def convert_to_second(date_obj):
 
     return int(date_obj.timestamp())
 
-def create_id_for_htmx_indicator(*args):
+def create_id_for_htmx_indicator(*args: str) -> str:
     '''
     Generate a unique ID for an HTMX indicator by joining the provided arguments with hyphens.
 
@@ -528,7 +532,7 @@ def create_id_for_htmx_indicator(*args):
         f'{"-".join(args)}--htmx-indicator'
     )
 
-def create_short_uuid():
+def create_short_uuid() -> str:
     '''
     Generate a short UUID string.
 
@@ -548,7 +552,7 @@ def create_short_uuid():
     _sample = uuid4()
     return hex(int(_sample.time_low))[2:]
 
-def get_date_time_live():
+def get_date_time_live() -> HttpResponse:
     '''
     Get the current date and time in Persian format.
 
@@ -583,7 +587,7 @@ def get_date_time_live():
 
     return HttpResponse(f'{_year}/{_month}/{_day} {_hour}:{_min}')
 
-def get_list_of_files(directory, extension):
+def get_list_of_files(directory: str, extension: str) -> List[str]:
     '''
     Get a list of files in a directory with a specific extension, sorted naturally.
 
@@ -623,13 +627,17 @@ def get_list_of_files(directory, extension):
         ])
     ])
 
-def get_percent(smaller_number, total_number, to_persian=False):
+def get_percent(
+    smaller_number: Union[int, float],
+    total_number: Union[int, float],
+    to_persian: bool = False,
+) -> str:
     '''
     Calculate the percentage of a smaller number relative to a total number.
 
     Parameters:
-        smaller_number (int or float): The part of the total number.
-        total_number (int or float): The total number.
+        smaller_number (Union[int, float]): The part of the total number.
+        total_number (Union[int, float]): The total number.
         to_persian (bool): If True, returns the percentage in Persian numerals.
 
     Returns:
@@ -677,7 +685,7 @@ def get_percent(smaller_number, total_number, to_persian=False):
 
     return _perc
 
-def intcomma_persian(num):
+def intcomma_persian(num: str) -> str:
     '''
     Formats a Persian number string by adding commas as thousand separators.
 
@@ -738,7 +746,7 @@ def intcomma_persian(num):
 
 
 _INT_OR_FLOAT_PATTERN = compile(r'^[0-9\.]+$')
-def is_int_or_float(string):
+def is_int_or_float(string: str) -> bool:
     '''
     Check if the given string represents an integer or a float.
 
@@ -773,7 +781,7 @@ def is_int_or_float(string):
 
     return match(_INT_OR_FLOAT_PATTERN, str(string)) is not None
 
-def persianize(number):
+def persianize(number: Union[int, float]) -> str:
     '''
     Convert an English number to its Persian equivalent.
 
@@ -781,7 +789,7 @@ def persianize(number):
     If the number is a float, it handles the decimal part appropriately.
 
     Args:
-        number (int or float): The number to be converted.
+        number (Union[int, float]): The number to be converted.
 
     Returns:
         str: The Persian string representation of the number.
@@ -806,12 +814,12 @@ def persianize(number):
 
     return english_to_persian(int(number))
 
-def sort_dict(dictionary, based_on, reverse):
+def sort_dict(dictionary: Dict[Any, Any], based_on: str, reverse: bool) -> Dict[Any, Any]:
     '''
     Sort a dictionary based on its keys or values.
 
     Parameters:
-        dictionary (dict): The dictionary to be sorted.
+        dictionary (Dict[Any, Any]): The dictionary to be sorted.
         based_on (str): The criteria to sort by, either 'key' or 'value'.
         reverse (bool): If True, sort in descending order, otherwise ascending.
 
@@ -840,7 +848,7 @@ def sort_dict(dictionary, based_on, reverse):
 
     return dictionary
 
-def to_tilda(text):
+def to_tilda(text: str) -> str:
     '''
     Replaces the home directory path in the given text with a tilde (~).
 
@@ -866,7 +874,11 @@ def to_tilda(text):
 
 
 @admin.action(description='Make Active')
-def make_active(modeladmin, request, queryset):
+def make_active(
+    modeladmin: admin.ModelAdmin,
+    request: HttpRequest,
+    queryset: QuerySet,
+) -> None:
     '''
     Activates the selected queryset objects based on their model type.
 
@@ -875,7 +887,7 @@ def make_active(modeladmin, request, queryset):
     It also sends a message to the model admin indicating the number of objects that were activated.
 
     Parameters:
-        modeladmin (ModelAdmin): The ModelAdmin instance that called this action.
+        modeladmin (admin.ModelAdmin): The admin.ModelAdmin instance that called this action.
         request (HttpRequest): The current request object.
         queryset (QuerySet): The queryset of objects selected by the user.
 
@@ -903,7 +915,11 @@ def make_active(modeladmin, request, queryset):
         )
 
 @admin.action(description='Make Inactive')
-def make_inactive(modeladmin, request, queryset):
+def make_inactive(
+    modeladmin: admin.ModelAdmin,
+    request: HttpRequest,
+    queryset: QuerySet,
+) -> None:
     '''
     Inactivates the selected queryset objects based on their model type.
 
@@ -912,7 +928,7 @@ def make_inactive(modeladmin, request, queryset):
     It also sends a message to the model admin indicating the number of objects that were activated.
 
     Parameters:
-        modeladmin (ModelAdmin): The ModelAdmin instance that called this action.
+        modeladmin (admin.ModelAdmin): The admin.ModelAdmin instance that called this action.
         request (HttpRequest): The current request object.
         queryset (QuerySet): The queryset of objects selected by the user.
 
@@ -944,14 +960,14 @@ def make_inactive(modeladmin, request, queryset):
 ## functions used in django custom commands
 
 
-def abort(self, text=None):
+def abort(self, text: Optional[str] = None) -> None:
     print()
     if text:
         print(colorize(self, 'error', text))
     print(colorize(self, 'error', 'aborting...'))
     print()
 
-def add_yearmonthday_force(parser, for_mysql=False):
+def add_yearmonthday_force(parser, for_mysql: bool = False) -> None:
     ## __DATABASE_YMD_PATTERN__
 
     if for_mysql:
@@ -1037,7 +1053,7 @@ def add_yearmonthday_force(parser, for_mysql=False):
         help=help_msg,
     )
 
-def colorize(self, mode, text):
+def colorize(self, mode: str, text: str) -> str:
     if mode == 'already_parsed':  return self.style.SQL_COLTYPE(text)        ## green
     if mode == 'command':         return self.style.HTTP_SERVER_ERROR(text)  ## bold magenta
     if mode == 'country_error':   return self.style.NOTICE(text)             ## red
@@ -1077,7 +1093,7 @@ def colorize(self, mode, text):
 
     return self.style.HTTP_SUCCESS(text)  ## white
 
-def get_command(full_path, drop_extention=True):
+def get_command(full_path: str, drop_extention: bool = True) -> str:
     '''
     Extracts the command name from a given full path of a Django custom command.
 
@@ -1104,7 +1120,7 @@ def get_command(full_path, drop_extention=True):
 
     return base
 
-def get_command_log_file(command):
+def get_command_log_file(command: str) -> str:
     '''
     Examples:
         >>> get_command_log_file("live-parse")
@@ -1113,14 +1129,14 @@ def get_command_log_file(command):
 
     return f'{settings.PROJECT_LOGS_DIR}/{command}.log'
 
-def is_allowed(cmd, only, exclude):
+def is_allowed(cmd: str, only: List[str], exclude: List[str]) -> bool:
     '''
     Check if a command is allowed based on inclusion and exclusion lists.
 
     Args:
         cmd (str): The command to check.
         only (list): List of commands that are explicitly allowed. If this list is not empty, only commands in this list are allowed.
-        exclude (list): List of commands that are explicitly disallowed. Commands in this list are not allowed.
+        exclude (List[str]): List of commands that are explicitly disallowed. Commands in this list are not allowed.
 
     Returns:
         bool: True if the command is allowed, False otherwise.
@@ -1135,7 +1151,7 @@ def is_allowed(cmd, only, exclude):
 
     return _allowed
 
-def keyboard_interrupt_handler(sig_num, frame):
+def keyboard_interrupt_handler(sig_num: int, frame: FrameType) -> None:
     '''
     Handle keyboard interrupt signal (SIGINT).
 
@@ -1171,7 +1187,7 @@ def keyboard_interrupt_handler(sig_num, frame):
         returncode=0,
     )
 
-def save_log(self, command, host_name, dest_file, msg, echo=True):
+def save_log(self, command: str, host_name: str, dest_file: str, msg: str, echo: bool = True) -> None:
     '''
     Logs a message to a specified file and optionally prints it with colorized output.
 
