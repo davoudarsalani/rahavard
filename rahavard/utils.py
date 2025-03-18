@@ -73,11 +73,11 @@ def contains_ymd(string: str) -> bool:
     Examples:
         >>> contains_ymd("Today's date is 2023-10-05.")
         True
-        >>> contains_ymd("No date here!")
+        >>> contains_ymd('No date here!')
         False
-        >>> contains_ymd("The event is on 2023-12-25.")
+        >>> contains_ymd('The event is on 2023-12-25.')
         True
-        >>> contains_ymd("Date: 2023/10/05")
+        >>> contains_ymd('Date: 2023/10/05')
         False
     '''
 
@@ -94,13 +94,13 @@ def is_ymd(string: str) -> bool:
         bool: True if the string matches the YMD format, False otherwise.
 
     Examples:
-        >>> is_ymd("2023-10-05")
+        >>> is_ymd('2023-10-05')
         True
-        >>> is_ymd("05-10-2023")
+        >>> is_ymd('05-10-2023')
         False
-        >>> is_ymd("2023/10/05")
+        >>> is_ymd('2023/10/05')
         False
-        >>> is_ymd("20231005")
+        >>> is_ymd('20231005')
         False
     '''
 
@@ -421,7 +421,7 @@ def convert_timestamp_to_jalali(tmstmp: Optional[int] = None) -> str:
     Convert a Unix timestamp to a Jalali date string.
 
     This function converts a given Unix timestamp to a Jalali date string in the format:
-    "weekday hour:minute:second year/month/day". If no timestamp is provided, it returns an empty string.
+    'weekday hour:minute:second year/month/day'. If no timestamp is provided, it returns an empty string.
 
     Parameters:
         tmstmp (Optional[int]): Unix timestamp to be converted. Defaults to None.
@@ -757,19 +757,19 @@ def is_int_or_float(string: str) -> bool:
         bool: True if the string represents an integer or a float, False otherwise.
 
     Examples:
-        >>> is_int_or_float("123")
+        >>> is_int_or_float('123')
         True
-        >>> is_int_or_float("123.456")
+        >>> is_int_or_float('123.456')
         True
         >>> is_int_or_float(123)
         True
         >>> is_int_or_float(123.456)
         True
-        >>> is_int_or_float("")
+        >>> is_int_or_float(')
         False
-        >>> is_int_or_float("abc")
+        >>> is_int_or_float('abc')
         False
-        >>> is_int_or_float("123abc")
+        >>> is_int_or_float('123abc')
         False
         >>> is_int_or_float(None)
         False
@@ -1123,8 +1123,8 @@ def get_command(full_path: str, drop_extention: bool = True) -> str:
 def get_command_log_file(command: str) -> str:
     '''
     Examples:
-        >>> get_command_log_file("live-parse")
-        "/FOO/BAR/BAZ/live-parse.log"
+        >>> get_command_log_file('live-parse')
+        '/FOO/BAR/BAZ/live-parse.log'
     '''
 
     return f'{settings.PROJECT_LOGS_DIR}/{command}.log'
