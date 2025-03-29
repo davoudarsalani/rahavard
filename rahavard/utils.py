@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.core.management.base import CommandError
 from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest
@@ -154,6 +154,20 @@ def calculate_offset(page_number: int, limit_to_show: int) -> int:
     '''
 
     return (page_number - 1) * limit_to_show
+
+def clear_messages(request: HttpRequest) -> None:
+    '''
+    Clears all messages from the given Django HTTP request.
+
+    Args:
+        request (HttpRequest): The Django HTTP request object containing messages to be cleared.
+
+    Returns:
+        None
+    '''
+
+    storage = messages.get_messages(request)
+    storage.used = True
 
 def comes_from_htmx(request: HttpRequest) -> bool:
     '''
