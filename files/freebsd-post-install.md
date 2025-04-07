@@ -317,6 +317,12 @@ set dircounts true
 set period 1
 set shellopts "-e"
 set ratios 1:2
+
+## unset d for :cut
+map d
+## set x for :cut
+map x :cut
+
 map q % {{
     lf -remote "send $id clear"
     lf -remote "send $id unselect"
