@@ -162,8 +162,14 @@ if [ $UID -gt 0 ]; then
   ps_c_exit=$(printf "${ps_code_color_exit}")
   ps_c_rst=$(printf "${ps_code_color_reset}")
   ##
-  PS1='$(xt_stts="$?";[ "$xt_stts" -gt 0 ] && EXIT=" $xt_stts"
-  echo "\[${ps_c_name}\]\u@\H\[${ps_c_rst}\] \[${ps_c_dir}\]\w\[${ps_c_rst}\]\[${ps_c_exit}\]${EXIT}\[${ps_c_rst}\] \$ ")'
+  PS1='$(
+  xt_stts="$?"
+  [ "$xt_stts" -gt 0 ] && EXIT=" $xt_stts"
+echo "\
+\[${ps_c_name}\]\u@\H \[${ps_c_rst}\]\
+\[${ps_c_dir}\]\w\[${ps_c_rst}\]\
+\[${ps_c_exit}\]${EXIT}\[${ps_c_rst}\] \$ "
+)'
   ## previously:
   # PS1='$(xt_stts="$?";[ "$xt_stts" -gt 0 ] && EXIT=" $xt_stts"
   # echo "-=[ \u@\H \w${EXIT} \$ ]=- ")'
