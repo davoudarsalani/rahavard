@@ -142,6 +142,9 @@ vim ~/.bashrc
 
 Paste:
 ```
+## If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
 if [ $UID -gt 0 ]; then
   ## https://superuser.com/a/1519118
   ##
