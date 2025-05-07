@@ -68,7 +68,7 @@ with
 ## exit from root
 exit
 
-sudo pkg install -y apache24 bash curl git gpart jq python redis rsync tmux vim wget xfce
+sudo pkg install -y apache24 bash curl git gpart jq python redis rsync tmux vim wget ncdu xfce
 sudo pkg install -y pkgconf    ## needed for installing mysql package with pip
 sudo pkg install -y syslog-ng p5-Net-Nslookup bind-tools
 sudo pkg install -y e2fsprogs    ## this will install chattr and lsattr
@@ -183,6 +183,7 @@ export HISTTIMEFORMAT='%Y%m%d%H%M%S '
 export LS_FLAGS='-A --color=always'
 
 alias ls="\ls $LS_FLAGS"
+alias ncdu='ncdu --apparent-size'
 
 function lsl {
     shopt -s expand_aliases
