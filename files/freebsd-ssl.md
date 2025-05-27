@@ -120,6 +120,9 @@ ServerName XXXX.EXAMPLE_IR
 
 <IfModule mod_ssl.c>
 <VirtualHost *:443>
+    ## to tell Apache to pass the Authorization header through
+    ## (e.g. from mobile apps) to your Django application
+    WSGIPassAuthorization On
 
     ErrorLog  /FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-error.log
     CustomLog /FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-access.log common

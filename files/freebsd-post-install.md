@@ -746,6 +746,10 @@ Timeout 30
 
 ## Virtual Hosts
 <VirtualHost *:80>
+    ## to tell Apache to pass the Authorization header through
+    ## (e.g. from mobile apps) to your Django application
+    WSGIPassAuthorization On
+
     ## custom paths for logs (by default, apache logs are saved in /var/log/, named httpd-access.log and httpd-error.log)
     CustomLog /FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-access.log common
     ErrorLog  /FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-error.log
