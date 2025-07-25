@@ -222,6 +222,7 @@ def convert_byte(size_in_bytes: Union[int, float], to_persian: bool = False) -> 
     Note:
         - https://stackoverflow.com/questions/5194057/better-way-to-convert-file-sizes-in-python
     '''
+    ## __HAS_RUST_VERSION__
 
     if not is_int_or_float(size_in_bytes) or \
        int(size_in_bytes) == 0:
@@ -312,6 +313,7 @@ def convert_second(seconds: Union[int, float], verbose: bool = True) -> str:
         >>> convert_second(31536000, verbose=False)
         '1:00:05:00:00:00'
     '''
+    ## __HAS_RUST_VERSION__
 
     if not is_int_or_float(seconds):
         ## JUMP_3
@@ -792,6 +794,7 @@ def is_int_or_float(string: str) -> bool:
         >>> is_int_or_float(False)
         False
     '''
+    ## __HAS_RUST_VERSION__
 
     return match(_INT_OR_FLOAT_PATTERN, str(string)) is not None
 
@@ -853,6 +856,7 @@ def sort_dict(dictionary: Dict[Any, Any], based_on: str, reverse: bool) -> Dict[
         >>> sort_dict({'b': 2, 'a': 1, 'c': 3}, based_on='value', reverse=True)
         {'c': 3, 'b': 2, 'a': 1}
     '''
+    ## __HAS_RUST_VERSION__
 
     if based_on == 'key':
         return dict(natsorted(dictionary.items(), reverse=reverse))
@@ -880,6 +884,8 @@ def to_tilda(text: str) -> str:
         >>> to_tilda('/home/other_username/file.txt')
         '/home/other_username/file.txt'
     '''
+    ## __HAS_RUST_VERSION__
+
     return sub(getenv('HOME'), '~', text)
 
 
@@ -1215,6 +1221,7 @@ def save_log(self, command: str, host_name: str, dest_file: str, msg: str, echo:
     Examples:
         save_log(self, 'live-parse', 'abc-def.local', '/FOO/BAR/BAZ/live-parse.log', 'parse accomplished in 5 minutes')
     '''
+    ## __HAS_RUST_VERSION__
 
     ymdhms = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
