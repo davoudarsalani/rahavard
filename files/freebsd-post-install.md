@@ -112,27 +112,6 @@ sudo cp /usr/share/zoneinfo/Asia/Tehran /etc/localtime  ## NOTE do this last
 
 <br>
 
-## Enable `apache24` and `mysql`
-
-```
-sudo vim /etc/rc.conf
-```
-
-Paste:
-```
-apache24_enable="YES"
-mysql_enable="YES"
-```
-
-<br>
-
-To see loaded `apache24` modules:
-```
-apachectl -M
-```
-
-<br>
-
 ## Configure `bash`
 
 `bashrc`:
@@ -681,6 +660,45 @@ sudo service redis restart
 
 <br>
 
+## Configure `mysql`
+
+Enable:
+```
+sudo vim /etc/rc.conf
+```
+
+Paste:
+```
+mysql_enable="YES"
+```
+
+<br>
+
+Configure:
+```
+sudo vim /usr/local/etc/mysql/my.cnf
+```
+
+Paste:
+```
+[mysqld]
+max_allowed_packet = 1024M
+skip-log-bin
+
+## for using infiles located in directories other than @datadir
+## (required on production, no harm to be on development too)
+secure_file_priv = ""
+```
+
+<br>
+
+Restart:
+```
+sudo service mysql-server restart
+```
+
+<br>
+
 ## Configure `ntp` *(for Non-Virtual Servers Only)*
 
 Enable:
@@ -727,6 +745,23 @@ sudo service ntpd restart
 
 ## Configure `apache24` *(http)*
 
+Enable:
+```
+sudo vim /etc/rc.conf
+```
+
+Paste:
+```
+apache24_enable="YES"
+```
+
+To see loaded `apache24` modules:
+```
+apachectl -M
+```
+<br>
+
+Configure:
 ```
 sudo vim /usr/local/etc/apache24/Includes/httpd.conf
 ```
@@ -783,7 +818,7 @@ Timeout 30
 
 <br>
 
-## `live_parse` service
+## `live_parse` Service
 
 > [serverfault.com](https://serverfault.com/questions/873185/freebsd-rc-d-script-doesnt-start-as-a-daemon), [unix.stackexchange.com](https://unix.stackexchange.com/questions/50478/is-there-an-easy-way-to-create-a-freebsd-rc-script), [unix.stackexchange.com](https://unix.stackexchange.com/questions/745327/python-script-as-rc-service-on-freebsd)
 
