@@ -68,7 +68,7 @@ with
 ## exit from root
 exit
 
-sudo pkg install -y apache24 bash curl git gpart jq python redis rsync tmux vim wget ncdu xfce
+sudo pkg install -y apache24 bash curl git gpart jq python redis rsync tmux vim wget ncdu rust xfce
 sudo pkg install -y pkgconf    ## needed for installing mysql package with pip
 sudo pkg install -y syslog-ng p5-Net-Nslookup bind-tools
 sudo pkg install -y e2fsprogs    ## this will install chattr and lsattr
@@ -611,6 +611,7 @@ Paste:
 2 5-23 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions-analyzer --action hourly-parse
 
 ## at 00:10
+## Optional flags: --rust
 10 0 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py actions-analyzer --action parse --proxy --restart-services
 
 ## --------------------
@@ -685,9 +686,29 @@ Paste:
 max_allowed_packet = 1024M
 skip-log-bin
 
-## for using infiles located in directories other than @datadir
+## for using infiles located in /tmp
 ## (required on production, no harm to be on development too)
 secure_file_priv = ""
+
+## ,-------------------------------------------------,
+## | Total RAM | Recommended innodb_buffer_pool_size |
+## |-------------------------------------------------|
+## |  4 GB     | 2500M  (~2.5 GB)                    |
+## |  8 GB     | 5500M  (~5.5 GB)                    |
+## | 16 GB     | 10240M (~10  GB)                    |
+## '-------------------------------------------------'
+##
+innodb_autoextend_increment = 256    ## 256MB - grow InnoDB tablespace in nMB chunks to reduce frequent file extensions during large imports
+innodb_buffer_pool_size = 4G         ## size of memory pool for caching data/indexes; larger = faster reads/writes
+innodb_doublewrite = 0               ## disable doublewrite buffer to reduce disk writes; faster but riskier on crash
+innodb_flush_log_at_trx_commit = 2   ## flush log to disk every second, not on each commit; improves write performance (less durable)
+innodb_log_buffer_size = 256M        ## increase log buffer for bulk insert to reduce flush frequency
+innodb_log_file_size = 1G            ## larger log files improve bulk insert speed by reducing log flush frequency
+innodb_sort_buffer_size = 268435456  ## 256MB - memory buffer used when creating indexes in InnoDB; larger = faster index creation (especially for large datasets)
+innodb_stats_auto_recalc = 0         ## disable automatic InnoDB index stats recalculation during bulk load
+binlog_format = 'STATEMENT'          ## use statement-based binary logging to reduce binlog size and overhead for bulk operations
+net_buffer_length = 33554432         ## 32MB - the chunk size the client reads from the server (max practical: around 32MB)
+sync_binlog = 0                      ## do not flush binary log to disk on every transaction; improves write performance at slight durability risk
 ```
 
 <br>
