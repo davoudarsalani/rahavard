@@ -843,6 +843,10 @@ def sort_dict(dictionary: Dict[Any, Any], based_on: str, reverse: bool) -> Dict[
     Returns:
         dict: A new dictionary sorted based on the specified criteria.
 
+    Rules:
+        - If based_on == 'key': primary sort on key (asc/desc), tie-break on value (always ascending).
+        - If based_on == 'value': primary sort on value (asc/desc), tie-break on key (always ascending).
+
     Examples:
         >>> sort_dict({'b': 2, 'a': 1, 'c': 3}, based_on='key', reverse=False)
         {'a': 1, 'b': 2, 'c': 3}
@@ -858,13 +862,18 @@ def sort_dict(dictionary: Dict[Any, Any], based_on: str, reverse: bool) -> Dict[
     '''
     ## __HAS_RUST_VERSION__
 
+    items = list(dictionary.items())
+
     if based_on == 'key':
-        return dict(natsorted(dictionary.items(), reverse=reverse))
+        items.sort(key=lambda kv: (kv[0], kv[1]) if not reverse else (-1, 0), reverse=reverse)
+        items.sort(key=lambda kv: kv[1])  # ensure value tie-break is ascending
+        items.sort(key=lambda kv: kv[0], reverse=reverse)
 
-    if based_on == 'value':
-        return dict(natsorted(dictionary.items(), key=lambda item: item[1], reverse=reverse))
+    elif based_on == 'value':
+        items.sort(key=lambda kv: kv[0])  # ensure key tie-break is ascending
+        items.sort(key=lambda kv: kv[1], reverse=reverse)
 
-    return dictionary
+    return dict(items)
 
 def to_tilda(text: str) -> str:
     '''
