@@ -862,16 +862,18 @@ def sort_dict(dictionary: Dict[Any, Any], based_on: str, reverse: bool) -> Dict[
     '''
     ## __HAS_RUST_VERSION__
 
+    def safe_key(x):
+        return (x is None, x)
+
     items = list(dictionary.items())
 
-    if based_on == 'key':
-        items.sort(key=lambda kv: (kv[0], kv[1]) if not reverse else (-1, 0), reverse=reverse)
-        items.sort(key=lambda kv: kv[1])  # ensure value tie-break is ascending
-        items.sort(key=lambda kv: kv[0], reverse=reverse)
+    if based_on == "key":
+        items.sort(key=lambda kv: (safe_key(kv[0]) if not reverse else (safe_key(kv[0]),)), reverse=reverse)
+        items.sort(key=lambda kv: safe_key(kv[1]))  # tie-break on value, ascending
 
-    elif based_on == 'value':
-        items.sort(key=lambda kv: kv[0])  # ensure key tie-break is ascending
-        items.sort(key=lambda kv: kv[1], reverse=reverse)
+    elif based_on == "value":
+        items.sort(key=lambda kv: safe_key(kv[0]))  # tie-break on key, ascending
+        items.sort(key=lambda kv: safe_key(kv[1]), reverse=reverse)
 
     return dict(items)
 
