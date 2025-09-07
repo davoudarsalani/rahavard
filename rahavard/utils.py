@@ -858,20 +858,38 @@ def sort_dict(dictionary: Dict[Any, Any], based_on: str, reverse: bool) -> Dict[
     '''
     ## __HAS_RUST_VERSION__
 
+    def _normalize(val: Any) -> Any:
+        '''None -> 'None' to avoid errors'''
+        if val is None:
+            return 'None'
+        return val
+
     if based_on == 'key':
-        return dict(natsorted(dictionary.items(), reverse=reverse))
+        return dict(
+            natsorted(
+                dictionary.items(),
+                key=lambda item: _normalize(item[0]),
+                reverse=reverse,
+            )
+        )
 
     if based_on == 'value':
         ## sort by value first (ascending or descending depending on reverse),
         ## then by key ascending to break ties -
         ## i.e. the pairs whose values are the same,
         ## will be sorted by key ascending no matter what reverse is
-        return dict(
-            sorted(
-                dictionary.items(),
-                key=lambda item: (item[1] * (-1 if reverse else 1), item[0])
-            )
-        )
+
+        def _sort_key(item):
+            val = _normalize(item[1])
+            key = _normalize(item[0])
+            # For reverse, numeric values get negated; strings stay as-is, and reverse handled manually
+            if isinstance(val, (int, float)):
+                val_sort = -val if reverse else val
+            else:
+                val_sort = val  # strings can't be negated
+            return (val_sort, key)  # tie-break always by key ascending
+
+        return dict(sorted(dictionary.items(), key=_sort_key))
 
     return dictionary
 
