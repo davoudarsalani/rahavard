@@ -833,7 +833,7 @@ def persianize(number: Union[int, float]) -> str:
 
 def sort_dict(dictionary: Dict[Any, Any], based_on: str, reverse: bool) -> Dict[Any, Any]:
     '''
-    Sort a dictionary based on its keys or values.
+    Sort a dictionary based on its keys or values, with tie-breaking by key if sorting by value.
 
     Parameters:
         dictionary (Dict[Any, Any]): The dictionary to be sorted.
@@ -862,7 +862,16 @@ def sort_dict(dictionary: Dict[Any, Any], based_on: str, reverse: bool) -> Dict[
         return dict(natsorted(dictionary.items(), reverse=reverse))
 
     if based_on == 'value':
-        return dict(natsorted(dictionary.items(), key=lambda item: item[1], reverse=reverse))
+        ## sort by value first (ascending or descending depending on reverse),
+        ## then by key ascending to break ties -
+        ## i.e. the pairs whose values are the same,
+        ## will be sorted by key ascending no matter what reverse is
+        return dict(
+            sorted(
+                dictionary.items(),
+                key=lambda item: (item[1] * (-1 if reverse else 1), item[0])
+            )
+        )
 
     return dictionary
 
