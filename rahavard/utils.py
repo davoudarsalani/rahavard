@@ -889,7 +889,7 @@ def sort_dict(dictionary: Dict[Any, Any], based_on: str, reverse: bool) -> Dict[
                 val_sort = val  # strings can't be negated
             return (val_sort, key)  # tie-break always by key ascending
 
-        return dict(sorted(dictionary.items(), key=_sort_key))
+        return dict(natsorted(dictionary.items(), key=_sort_key))
 
     return dictionary
 
