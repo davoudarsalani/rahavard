@@ -69,6 +69,7 @@ with
 exit
 
 sudo pkg install -y apache24 bash curl git gpart jq python redis rsync tmux vim wget ncdu rust xfce
+sudo pkg install -y ollama
 sudo pkg install -y pkgconf    ## needed for installing mysql package with pip
 sudo pkg install -y syslog-ng p5-Net-Nslookup bind-tools
 sudo pkg install -y e2fsprogs    ## this will install chattr and lsattr
@@ -713,9 +714,74 @@ sync_binlog = 0                      ## do not flush binary log to disk on every
 
 <br>
 
+Create users
+
+> follow the steps in mysql docs on development
+
+<br>
+
 Restart:
 ```
 sudo service mysql-server restart
+```
+
+<br>
+
+## Configure `ollama`
+
+Create the service script:
+```
+sudo vim /usr/local/etc/rc.d/ollama
+```
+
+Paste:
+```
+#!/bin/sh
+#
+# PROVIDE: ollama
+# REQUIRE: NETWORKING
+# KEYWORD: shutdown
+#
+
+. /etc/rc.subr
+
+name="ollama"
+rcvar="${name}_enable"
+
+desc="Ollama model server"
+
+command="/usr/sbin/daemon"
+pidfile="/var/run/${name}.pid"
+ollama_cmd="/usr/local/bin/ollama serve"
+command_args="-p ${pidfile} ${ollama_cmd}"
+
+load_rc_config $name
+run_rc_command "$1"
+```
+
+Make executable:
+```
+sudo chmod +x /usr/local/etc/rc.d/ollama
+```
+
+Enable:
+```
+sudo vim /etc/rc.conf
+```
+
+Paste:
+```
+ollama_enable="YES"
+```
+
+Restart:
+```
+sudo service ollama start
+```
+
+Pull models as needed
+```
+ollama pull <model_name>
 ```
 
 <br>
