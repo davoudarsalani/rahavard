@@ -714,7 +714,7 @@ sync_binlog = 0                      ## do not flush binary log to disk on every
 
 <br>
 
-Create users
+Create users:
 
 > follow the steps in mysql docs on development
 
