@@ -8,9 +8,13 @@ from datetime import datetime
 from math import floor, log as math_log, pow as math_pow
 from os import path, listdir, getenv
 from re import match, sub, compile
+from secrets import choice as secrets_choice
+from string import (
+    ascii_letters,
+    digits,
+)
 from types import FrameType
 from typing import Any, Dict, List, Optional, Union
-from uuid import uuid4
 
 from convert_numbers import english_to_persian
 from jdatetime import datetime as jdt
@@ -548,25 +552,22 @@ def create_id_for_htmx_indicator(*args: str) -> str:
         f'{"-".join(args)}--htmx-indicator'
     )
 
+_ALPHABET = ascii_letters + digits  ## a-zA-Z0-9
 def create_short_uuid() -> str:
     '''
     Generate a short UUID string.
-
-    This function creates a UUID (Universally Unique Identifier) and returns a shortened version of it by converting the time_low part of the UUID to a hexadecimal string.
+    This function creates a random string of 15 characters using a combination of
 
     Returns:
-        str: A shortened UUID string.
+        str: A 15-character long UUID string.
 
     Examples:
         >>> create_short_uuid()
-        '1a2b3c4d'
-
-        >>> create_short_uuid()
-        '5e6f7a8b'
+        'XMqSs5GPX1HAGuL'
     '''
 
-    _sample = uuid4()
-    return hex(int(_sample.time_low))[2:]
+    str_len = 15
+    return ''.join(secrets_choice(_ALPHABET) for _ in range(str_len))
 
 def get_date_time_live() -> HttpResponse:
     '''
