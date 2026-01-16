@@ -16,6 +16,7 @@ from string import (
 from types import FrameType
 from typing import Any, Dict, List, Optional, Union
 
+from bs4 import BeautifulSoup
 from convert_numbers import english_to_persian
 from jdatetime import datetime as jdt
 from natsort import natsorted
@@ -701,6 +702,15 @@ def get_percent(
         return persianize(_perc)
 
     return _perc
+
+def html_to_plain_text(html_text: str) -> str:
+    '''
+    <p>Hello<b>World</b></p> -> Hello World
+    '''
+    soup = BeautifulSoup(html_text, 'html.parser')
+    plain_text = soup.get_text(separator=' ').strip()
+
+    return plain_text
 
 def intcomma_persian(num: str) -> str:
     '''

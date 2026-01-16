@@ -28,6 +28,7 @@ from rahavard.utils import (
     get_date_time_live,
     get_list_of_files,
     get_percent,
+    html_to_plain_text,
     intcomma_persian,
     is_int_or_float,
     persianize,
