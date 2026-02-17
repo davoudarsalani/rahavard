@@ -27,7 +27,7 @@ import jdatetime
 ADMIN_PY__LIST_DISPLAY_LINKS   = ['id', 'short_uuid']
 #
 ADMIN_PY__READONLY_FIELDS      = ['id', 'short_uuid', 'created', 'updated']
-ADMIN_PY__LIST_FILTER          = ['active', 'short_uuid']
+ADMIN_PY__LIST_FILTER          = ['is_active', 'short_uuid']
 #
 ADMIN_PY__USER_READONLY_FIELDS = ['id', 'short_uuid', 'date_joined', 'last_login']
 ADMIN_PY__USER_LIST_FILTER     = ['is_superuser', 'is_staff', 'is_active', 'is_limited_admin', 'short_uuid']
@@ -940,8 +940,7 @@ def make_active(
     '''
     Activates the selected queryset objects based on their model type.
 
-    This function updates the `is_active` field to `True` for 'User' model instances
-    and the `active` field to `True` for other model instances in the provided queryset.
+    This function updates the `is_active` field to `True` in the provided queryset.
     It also sends a message to the model admin indicating the number of objects that were activated.
 
     Parameters:
@@ -954,19 +953,12 @@ def make_active(
     '''
 
     _caller = modeladmin.model.__name__  ## 'User'/'Router'/...  (-> is str)
-    if _caller == 'User':
-        inactive_objects = queryset.filter(is_active=False)
-    else:
-        inactive_objects = queryset.filter(active=False)
+    inactive_objects = queryset.filter(is_active=False)
 
     count = inactive_objects.count()
 
     if count:
-        if _caller == 'User':
-            inactive_objects.update(is_active=True)
-        else:
-            inactive_objects.update(active=True)
-
+        inactive_objects.update(is_active=True)
         modeladmin.message_user(
             request,
             f'{count} made active'
@@ -981,8 +973,7 @@ def make_inactive(
     '''
     Inactivates the selected queryset objects based on their model type.
 
-    This function updates the `is_active` field to `False` for 'User' model instances
-    and the `active` field to `False` for other model instances in the provided queryset.
+    This function updates the `is_active` field to `False` in the provided queryset.
     It also sends a message to the model admin indicating the number of objects that were activated.
 
     Parameters:
@@ -995,18 +986,12 @@ def make_inactive(
     '''
 
     _caller = modeladmin.model.__name__  ## 'User'/'Router'/...  (-> is str)
-    if _caller == 'User':
-        active_objects = queryset.filter(is_active=True)
-    else:
-        active_objects = queryset.filter(active=True)
+    active_objects = queryset.filter(is_active=True)
 
     count = active_objects.count()
 
     if count:
-        if _caller == 'User':
-            active_objects.update(is_active=False)
-        else:
-            active_objects.update(active=False)
+        active_objects.update(is_active=False)
 
         modeladmin.message_user(
             request,
