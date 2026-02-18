@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import admin, messages
 from django.core.management.base import CommandError
+from django.db import models
 from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest
 
@@ -61,6 +62,11 @@ _SIZE_SIFFIXES = {
         'YB',
     ],
 }
+
+
+class ActiveObjects(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_active=True)
 
 
 def contains_ymd(string: str) -> bool:
