@@ -535,6 +535,18 @@ def convert_to_second(date_obj: datetime) -> int:
 
     return int(date_obj.timestamp())
 
+def create_empty_response() -> HttpResponse:
+    '''
+    Create an HttpResponse with status code 204 (No Content).
+
+    This response indicates that the request was successful, but there is no content
+    to send back in the response body.
+
+    Returns:
+        HttpResponse: A Django HttpResponse object with status 204.
+    '''
+    return HttpResponse(status=204)
+
 def create_id_for_htmx_indicator(*args: str) -> str:
     '''
     Generate a unique ID for an HTMX indicator by joining the provided arguments with hyphens.

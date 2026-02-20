@@ -25,6 +25,7 @@ from rahavard.utils import (
     convert_timestamp_to_jalali,
     convert_to_jalali,
     convert_to_second,
+    create_empty_response,
     create_id_for_htmx_indicator,
     create_short_uuid,
     get_date_time_live,
