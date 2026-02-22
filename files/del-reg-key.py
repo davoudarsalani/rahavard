@@ -41,7 +41,7 @@ and reboots if successful
 ## https://pypi.org/project/winregistry/
 
 
-from datetime import datetime
+from datetime import datetime as dt
 from getopt import getopt
 from os import system as os_system
 from pathlib import Path
@@ -68,7 +68,7 @@ def display_help():
 
 
 def save_log(msg):
-    ymdhms = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    ymdhms = dt.now().strftime('%Y-%m-%d %H:%M:%S')
     print(msg)
     with open(LOG_FILE, 'a') as opened:
         opened.write(f'{ymdhms} {msg}\n')

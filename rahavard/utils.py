@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest
 
-from datetime import datetime
+from datetime import datetime as dt
 from math import floor, log as math_log, pow as math_pow
 from os import path, listdir, getenv
 from re import match, sub, compile
@@ -474,7 +474,7 @@ def convert_timestamp_to_jalali(tmstmp: Optional[int] = None) -> str:
 
     return f'{w} {english_to_persian(h)}:{english_to_persian(mi)}:{english_to_persian(s)} {english_to_persian(y)}/{english_to_persian(mo)}/{english_to_persian(d)}'
 
-def convert_to_jalali(gregorian_object: Optional[datetime] = None) -> str:
+def convert_to_jalali(gregorian_object: Optional[dt] = None) -> str:
     '''
     Convert a Gregorian datetime object to a Jalali datetime string.
 
@@ -508,7 +508,7 @@ def convert_to_jalali(gregorian_object: Optional[datetime] = None) -> str:
 
     return f'{w} {english_to_persian(h)}:{english_to_persian(mi)}:{english_to_persian(s)} {english_to_persian(y)}/{english_to_persian(mo)}/{english_to_persian(d)}'
 
-def convert_to_second(date_obj: datetime) -> int:
+def convert_to_second(date_obj: dt) -> int:
     '''
     Convert a datetime object to seconds since the epoch.
 
@@ -1264,7 +1264,7 @@ def save_log(self, command: str, host_name: str, dest_file: str, msg: str, echo:
     '''
     ## __HAS_RUST_VERSION__
 
-    ymdhms = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    ymdhms = dt.now().strftime('%Y-%m-%d %H:%M:%S')
 
     msg = to_tilda(msg)
 
