@@ -57,7 +57,11 @@ Replace
 with
 ```
 %wheel ALL=(ALL:ALL) ALL
-%wheel ALL=(ALL) NOPASSWD: /usr/sbin/service * restart, /usr/sbin/service * status, /usr/bin/du *, /usr/bin/killall -HUP tor, /usr/local/bin/certbot renew
+%wheel ALL=(ALL) NOPASSWD: /usr/sbin/service * restart, \
+                           /usr/sbin/service * status,  \
+                           /usr/bin/du *,               \
+                           /usr/bin/killall -HUP tor,   \
+                           /usr/local/bin/certbot renew
 ```
 
 <br>
@@ -281,7 +285,7 @@ Download/Install:
 cd /tmp
 wget https://github.com/gokcehan/lf/releases/download/r29/lf-freebsd-amd64.tar.gz -O lf.tar.gz
 tar -xvf lf.tar.gz
-sudo mv lf /usr/bin/
+sudo mv lf /usr/local/bin/
 rm lf.tar.gz
 ```
 
