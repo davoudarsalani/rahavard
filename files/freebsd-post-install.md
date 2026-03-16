@@ -129,38 +129,41 @@ Paste:
 ## If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-if [ $UID -gt 0 ]; then
+build_prompt() {
+  local xt_stts="$?"
+  local EXIT=''
+  local VIRT=''
+
   ## https://superuser.com/a/1519118
   ##
   ## set rgb colors
-  ps_cname='167;95;180'
-  ps_cdir='88;131;187'
-  ps_cexit='236;39;39'
+  local ps_cname='167;95;180'
+  local ps_cdir='88;131;187'
+  local ps_cexit='236;39;39'
   ##
   ## do NOT change
-  ps_code_color_name="\x1b[38;2;${ps_cname}m"
-  ps_code_color_dir="\x1b[38;2;${ps_cdir}m"
-  ps_code_color_exit="\x1b[38;2;${ps_cexit}m"
-  ps_code_color_reset='\x1b[0m'
+  local ps_code_color_name="\x1b[38;2;${ps_cname}m"
+  local ps_code_color_dir="\x1b[38;2;${ps_cdir}m"
+  local ps_code_color_exit="\x1b[38;2;${ps_cexit}m"
+  local ps_code_color_reset='\x1b[0m'
   ##
   ## do NOT change
-  ps_c_name=$(printf "${ps_code_color_name}")
-  ps_c_dir=$(printf "${ps_code_color_dir}")
-  ps_c_exit=$(printf "${ps_code_color_exit}")
-  ps_c_rst=$(printf "${ps_code_color_reset}")
-  ##
-  PS1='$(
-  xt_stts="$?"
+  local ps_c_name=$(printf "${ps_code_color_name}")
+  local ps_c_dir=$(printf "${ps_code_color_dir}")
+  local ps_c_exit=$(printf "${ps_code_color_exit}")
+  local ps_c_rst=$(printf "${ps_code_color_reset}")
+
+  [ "$VIRTUAL_ENV" ] && VIRT=" (${VIRTUAL_ENV##*/})"
   [ "$xt_stts" -gt 0 ] && EXIT=" $xt_stts"
-echo "\
+
+  PS1="\
 \[${ps_c_name}\]\u@\H \[${ps_c_rst}\]\
 \[${ps_c_dir}\]\w\[${ps_c_rst}\]\
+\[${ps_c_rst}\]${VIRT}\[${ps_c_rst}\]\
 \[${ps_c_exit}\]${EXIT}\[${ps_c_rst}\] \$ "
-)'
-  ## previously:
-  # PS1='$(xt_stts="$?";[ "$xt_stts" -gt 0 ] && EXIT=" $xt_stts"
-  # echo "-=[ \u@\H \w${EXIT} \$ ]=- ")'
-fi
+}
+#
+PROMPT_COMMAND+=(build_prompt)
 
 export HISTCONTROL=erasedups:ignoredups:ignorespace
 export HISTTIMEFORMAT='%Y%m%d%H%M%S '
@@ -188,7 +191,7 @@ function lsl {
 ## "You have new mail in /var/mail/$USER"
 unset MAILCHECK
 
-if [ ! "$(pgrep 'tmux')" ]; then
+if [ ! "$(pgrep -x 'tmux')" ]; then
     tmux
 fi
 ```
