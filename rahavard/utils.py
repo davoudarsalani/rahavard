@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpRequest
 from datetime import datetime as dt
 from math import floor, log as math_log, pow as math_pow
 from os import path, listdir, getenv
-from re import match, sub, compile
+from re import match, sub, compile as re_compile
 from secrets import choice as secrets_choice
 from string import (
     ascii_letters,
@@ -37,6 +37,10 @@ JALALI_FORMAT = '%A %H %M %S %d %m %Y'
 
 YMD_REGEX = r'[0-9]{4}-[0-9]{2}-[0-9]{2}'
 HMS_REGEX = r'[0-9]{2}:[0-9]{2}:[0-9]{2}'
+
+_ALPHABET = ascii_letters + digits  ## a-zA-Z0-9
+
+_INT_OR_FLOAT_PATTERN = re_compile(r'^[0-9\.]+$')
 
 _SIZE_SIFFIXES = {
     'persian': [
@@ -91,6 +95,7 @@ def contains_ymd(string: str) -> bool:
         >>> contains_ymd('Date: 2023/10/05')
         False
     '''
+    ## __HAS_TEST__
 
     return match(f'^.*{YMD_REGEX}.*$', string) is not None
 
@@ -114,6 +119,7 @@ def is_ymd(string: str) -> bool:
         >>> is_ymd('20231005')
         False
     '''
+    ## __HAS_TEST__
 
     return match(f'^{YMD_REGEX}$', string) is not None
 
@@ -137,6 +143,7 @@ def starts_with_ymdhms(string: str) -> bool:
         >>> starts_with_ymdhms('2023-10-05 12:34 Some event')
         False
     '''
+    ## __HAS_TEST__
 
     return match(f'^{YMD_REGEX} {HMS_REGEX} ', string) is not None
 
@@ -156,13 +163,12 @@ def calculate_offset(page_number: int, limit_to_show: int) -> int:
     Examples:
         >>> calculate_offset(1, 25)
         0
-
         >>> calculate_offset(2, 25)
         25
-
         >>> calculate_offset(3, 10)
         20
     '''
+    ## __HAS_TEST__
 
     return (page_number - 1) * limit_to_show
 
@@ -200,6 +206,7 @@ def comes_from_htmx(request: HttpRequest) -> bool:
         >>> comes_from_htmx(request)
         True
 
+        >>> from django.http import HttpRequest
         >>> request = HttpRequest()
         >>> comes_from_htmx(request)
         False
@@ -233,6 +240,7 @@ def convert_byte(size_in_bytes: Union[int, float], to_persian: bool = False) -> 
     Note:
         - https://stackoverflow.com/questions/5194057/better-way-to-convert-file-sizes-in-python
     '''
+    ## __HAS_TEST__
     ## __HAS_RUST_VERSION__
 
     if not is_int_or_float(size_in_bytes) or \
@@ -280,6 +288,7 @@ def convert_millisecond(ms: Union[int, float], verbose: bool = True) -> Union[st
         >>> convert_millisecond(0)
         '0.0 seconds'
     '''
+    ## __HAS_TEST__
 
     if not is_int_or_float(ms):
         ms = 0
@@ -324,6 +333,7 @@ def convert_second(seconds: Union[int, float], verbose: bool = True) -> str:
         >>> convert_second(31536000, verbose=False)
         '1:00:05:00:00:00'
     '''
+    ## __HAS_TEST__
     ## __HAS_RUST_VERSION__
 
     if not is_int_or_float(seconds):
@@ -432,6 +442,7 @@ def convert_string_True_False_None_0(item: str) -> Union[bool, None, int, str]:
         >>> convert_string_True_False_None_0('Hello')
         'Hello'
     '''
+    ## __HAS_TEST__
 
     if item in ['True', 'False', 'None', '0']:
         return {
@@ -458,11 +469,11 @@ def convert_timestamp_to_jalali(tmstmp: Optional[int] = None) -> str:
 
     Examples:
         >>> convert_timestamp_to_jalali(1682598113)
-        'چهارشنبه ۰۷:۰۶:۳۳ ۳۰-/۰۱/۱۴۰۲'
-
+        'پنج‌شنبه ۱۵:۵۱:۵۳ ۱۴۰۲/۰۲/۰۷'
         >>> convert_timestamp_to_jalali()
         ''
     '''
+    ## __HAS_TEST__
 
     if not tmstmp:
         return ''
@@ -495,6 +506,7 @@ def convert_to_jalali(gregorian_object: Optional[dt] = None) -> str:
         >>> convert_to_jalali()
         ''
     '''
+    ## __HAS_TEST__
 
     if not gregorian_object:
         return ''
@@ -519,19 +531,22 @@ def convert_to_second(date_obj: dt) -> int:
         int: The number of seconds since the epoch.
 
     Examples:
-        >>> from datetime import datetime
-        >>> date_obj = datetime(2023, 10, 26, 12, 0, 0)
+        >>> from datetime import datetime as dt
+        >>> date_obj = dt(2023, 10, 26, 12, 0, 0)
         >>> convert_to_second(date_obj)
         1698381096
 
-        >>> date_obj = datetime(1970, 1, 1, 0, 0, 0)
+        >>> from datetime import datetime as dt
+        >>> date_obj = dt(1970, 1, 1, 0, 0, 0)
         >>> convert_to_second(date_obj)
         0
 
-        >>> date_obj = datetime(2000, 1, 1, 0, 0, 0)
+        >>> from datetime import datetime as dt
+        >>> date_obj = dt(2000, 1, 1, 0, 0, 0)
         >>> convert_to_second(date_obj)
         946684800
     '''
+    ## __HAS_TEST__
 
     return int(date_obj.timestamp())
 
@@ -560,10 +575,10 @@ def create_id_for_htmx_indicator(*args: str) -> str:
     Examples:
         >>> create_id_for_htmx_indicator('by-date', 'source-ip', '2024-06-30')
         'by-date-source-ip-2024-06-30--htmx-indicator'
-
         >>> create_id_for_htmx_indicator('tops')
         'tops--htmx-indicator'
     '''
+    ## __HAS_TEST__
 
     return sub(
         '-{3,}',
@@ -571,7 +586,6 @@ def create_id_for_htmx_indicator(*args: str) -> str:
         f'{"-".join(args)}--htmx-indicator'
     )
 
-_ALPHABET = ascii_letters + digits  ## a-zA-Z0-9
 def create_short_uuid() -> str:
     '''
     Generate a short UUID string.
@@ -602,7 +616,6 @@ def get_date_time_live() -> HttpResponse:
     Examples:
         >>> get_date_time_live()
         HttpResponse('۱۴۰۱/۰۱/۱۷ ۱۴:۳۰')
-
         >>> get_date_time_live()
         HttpResponse('۱۴۰۱/۰۲/۰۵ ۰۹:۱۵')
     '''
@@ -637,13 +650,10 @@ def get_list_of_files(directory: str, extension: str) -> List[str]:
     Examples:
         >>> get_list_of_files('/FOO/BAR/BAZ', 'txt')
         ['/FOO/BAR/BAZ/file1.txt', '/FOO/BAR/BAZ/file2.txt']
-
         >>> get_list_of_files('/FOO/BAR/BAZ', 'py')
         ['/FOO/BAR/BAZ/script1.py', '/FOO/BAR/BAZ/script2.py']
-
         >>> get_list_of_files('/non/existent/dir', 'txt')
         []
-
         >>> get_list_of_files('/FOO/BAR/BAZ', 'jpg')
         ['/FOO/BAR/BAZ/image1.jpg', '/FOO/BAR/BAZ/image2.jpg']
     '''
@@ -697,6 +707,7 @@ def get_percent(
         >>> get_percent(1, 100, to_persian=True)
         '۱'
     '''
+    ## __HAS_TEST__
 
     if smaller_number == 0 or total_number == 0:
         if to_persian:
@@ -725,6 +736,8 @@ def html_to_plain_text(html_text: str) -> str:
     '''
     <p>Hello<b>World</b></p> -> Hello World
     '''
+    ## __HAS_TEST__
+
     soup = BeautifulSoup(html_text, 'html.parser')
     plain_text = soup.get_text(separator=' ').strip()
 
@@ -746,16 +759,15 @@ def intcomma_persian(num: str) -> str:
     Examples:
         >>> intcomma_persian('۱۲۳۴۵۶۷۸۹۰')
         '۱،۲۳۴،۵۶۷،۸۹۰'
-
         >>> intcomma_persian('۱۲۳۴۵۶۷۸۹۰.۱۲۳۴۵۶۷۸۹۰')
         '۱،۲۳۴،۵۶۷،۸۹۰.۱۲۳۴۵۶۷۸۹۰'
-
         >>> intcomma_persian('۱۲۳۴۵۶۷۸۹۰/۱۲۳۴۵۶۷۸۹۰')
         '۱،۲۳۴،۵۶۷،۸۹۰/۱۲۳۴۵۶۷۸۹۰'
 
     Note:
         - https://stackoverflow.com/questions/50319819/separate-thousands-while-typing-in-farsipersian
     '''
+    ## __HAS_TEST__
 
     commad = ''
     left = ''
@@ -789,8 +801,6 @@ def intcomma_persian(num: str) -> str:
 
     return commad
 
-
-_INT_OR_FLOAT_PATTERN = compile(r'^[0-9\.]+$')
 def is_int_or_float(string: str) -> bool:
     '''
     Check if the given string represents an integer or a float.
@@ -810,7 +820,7 @@ def is_int_or_float(string: str) -> bool:
         True
         >>> is_int_or_float(123.456)
         True
-        >>> is_int_or_float(')
+        >>> is_int_or_float('')
         False
         >>> is_int_or_float('abc')
         False
@@ -823,6 +833,7 @@ def is_int_or_float(string: str) -> bool:
         >>> is_int_or_float(False)
         False
     '''
+    ## __HAS_TEST__
     ## __HAS_RUST_VERSION__
 
     return match(_INT_OR_FLOAT_PATTERN, str(string)) is not None
@@ -843,11 +854,12 @@ def persianize(number: Union[int, float]) -> str:
     Examples:
         >>> persianize(123)
         '۱۲۳'
-        >>> persianize(123.45)
-        '۱۲۳.۴۵'
         >>> persianize(123.00)
         '۱۲۳'
+        >>> persianize(123.45)
+        '۱۲۳.۴۵'
     '''
+    ## __HAS_TEST__
 
     number = str(number)
 
@@ -875,16 +887,14 @@ def sort_dict(dictionary: Dict[Any, Any], based_on: str, reverse: bool) -> Dict[
     Examples:
         >>> sort_dict({'b': 2, 'a': 1, 'c': 3}, based_on='key', reverse=False)
         {'a': 1, 'b': 2, 'c': 3}
-
         >>> sort_dict({'b': 2, 'a': 1, 'c': 3}, based_on='key', reverse=True)
         {'c': 3, 'b': 2, 'a': 1}
-
         >>> sort_dict({'b': 2, 'a': 1, 'c': 3}, based_on='value', reverse=False)
         {'a': 1, 'b': 2, 'c': 3}
-
         >>> sort_dict({'b': 2, 'a': 1, 'c': 3}, based_on='value', reverse=True)
         {'c': 3, 'b': 2, 'a': 1}
     '''
+    ## __HAS_TEST__
     ## __HAS_RUST_VERSION__
 
     def _normalize(val: Any) -> Any:
@@ -1168,10 +1178,10 @@ def get_command(full_path: str, drop_extention: bool = True) -> str:
     Examples:
         >>> get_command('/Foo/BAR/BAZ/commands/parse-dns.py')
         'parse-dns'
-
         >>> get_command('/Foo/BAR/BAZ/commands/parse-dns.py', drop_extention=False)
         'parse-dns.py'
     '''
+    ## __HAS_TEST__
 
     base = path.basename(full_path)  ## parse-dns.py
 
@@ -1187,6 +1197,7 @@ def get_command_log_file(command: str) -> str:
         >>> get_command_log_file('live-parse')
         '/FOO/BAR/BAZ/live-parse.log'
     '''
+    ## __HAS_TEST__
 
     return f'{settings.PROJECT_LOGS_DIR}/{command}.log'
 
