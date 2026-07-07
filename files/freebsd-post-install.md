@@ -886,7 +886,7 @@ Timeout 30
     ## https://docs.djangoproject.com/en/4.2/howto/deployment/wsgi/modwsgi/#serving-files
     # Alias /robots.txt /path/to/mysite.com/static/robots.txt
     # Alias /favicon.ico /FOO/BAR/BAZ/<PROJECT_SLUG>/static/favicon/favicon.ico
-    Alias /uploads/ /FOO/BAR/BAZ/<PROJECT_SLUG>/static/uploads/
+    Alias /public-attachments/ /FOO/BAR/BAZ/<PROJECT_SLUG>/static/public-attachments/
     # Alias /static/  /FOO/BAR/BAZ/<PROJECT_SLUG>/static/
     <Directory /FOO/BAR/BAZ/<PROJECT_SLUG>/static>
         Require all granted

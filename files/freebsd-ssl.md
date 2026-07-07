@@ -128,7 +128,7 @@ ServerName XXXX.EXAMPLE_IR
     CustomLog /FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-access.log common
 
     ## https://docs.djangoproject.com/en/4.2/howto/deployment/wsgi/modwsgi/#serving-files
-    Alias /uploads/    /FOO/BAR/BAZ/<PROJECT_SLUG>/static/uploads/
+    Alias /public-attachments/    /FOO/BAR/BAZ/<PROJECT_SLUG>/static/public-attachments/
     # Alias /robots.txt  /path/to/mysite.com/static/robots.txt
     # Alias /favicon.ico /FOO/BAR/BAZ/<PROJECT_SLUG>/static/files/misc/fav.ico
     # Alias /static/     /FOO/BAR/BAZ/<PROJECT_SLUG>/static/
