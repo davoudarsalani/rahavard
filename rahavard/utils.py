@@ -38,7 +38,8 @@ JALALI_FORMAT = '%A %H %M %S %d %m %Y'
 YMD_REGEX = r'[0-9]{4}-[0-9]{2}-[0-9]{2}'
 HMS_REGEX = r'[0-9]{2}:[0-9]{2}:[0-9]{2}'
 
-_ALPHABET = ascii_letters + digits  ## a-zA-Z0-9
+## uppercase letters, lowercase letters, and digits (a-zA-Z0-9)
+_SHORT_UUID_CHARS = ascii_letters + digits
 
 _INT_OR_FLOAT_PATTERN = re_compile(r'^[0-9\.]+$')
 
@@ -586,21 +587,37 @@ def create_id_for_htmx_indicator(*args: str) -> str:
         f'{"-".join(args)}--htmx-indicator'
     )
 
-def create_short_uuid() -> str:
+def create_short_uuid(length: int = 15) -> str:
     '''
-    Generate a short UUID string.
-    This function creates a random string of 15 characters using a combination of
+    Generate a short UUID string of the specified length
+    using uppercase letters, lowercase letters, and digits.
+
+    Args:
+        length (int): The length of the UUID string to generate. Default is 15.
 
     Returns:
-        str: A 15-character long UUID string.
+        str: A short UUID string of the specified length.
+             If length is less than or equal to zero, an empty string is returned.
 
     Examples:
-        >>> create_short_uuid()
+        >>> create_short_uuid(15)
         'XMqSs5GPX1HAGuL'
-    '''
 
-    str_len = 15
-    return ''.join(secrets_choice(_ALPHABET) for _ in range(str_len))
+        >>> create_short_uuid(7)
+        'wQfVS4c'
+
+        >>> create_short_uuid(0)
+        ''
+
+        >>> create_short_uuid(-5)
+        ''
+    '''
+    ## __HAS_TEST__
+
+    return ''.join(
+        secrets_choice(_SHORT_UUID_CHARS)
+        for _ in range(length)
+    )
 
 def get_date_time_live() -> HttpResponse:
     '''
