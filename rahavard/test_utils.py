@@ -1,7 +1,7 @@
 '''
 run:
-~/main/pypi/rahavard/venv/bin/pytest \
-~/main/pypi/rahavard/rahavard/test_utils.py
+/Foo/BAR/BAZ/rahavard/venv/bin/pytest \
+/Foo/BAR/BAZ/rahavard/rahavard/test_utils.py
 '''
 
 from django.conf import settings
@@ -21,6 +21,7 @@ from .utils import (
     convert_to_jalali,
     convert_to_second,
     create_id_for_htmx_indicator,
+    create_short_uuid,
     get_command,
     get_command_log_file,
     get_percent,
@@ -655,6 +656,21 @@ class TestCreateIdForHtmxIndicator:
         assert result.endswith('--htmx-indicator')
         assert 'v99' in result
 
+
+class TestCreateShortUUID:
+    @pytest.mark.parametrize('length, expected', [
+        (15, 15),
+        (7, 7),
+     ])
+    def test_len_of_output(self, length, expected):
+        assert len(create_short_uuid(length)) == expected
+
+    @pytest.mark.parametrize('length, expected', [
+        (0, ''),
+        (-5, ''),
+     ])
+    def test_empty_output(self, length, expected):
+        assert create_short_uuid(length) == expected
 
 class TestGetCommand:
     @pytest.mark.parametrize('full_path, expected', [
