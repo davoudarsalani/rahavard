@@ -806,7 +806,7 @@ Paste:
 LoadModule wsgi_module /usr/local/libexec/apache24/mod_wsgi.so
 
 ## Settings
-ServerName FOO.BAR.local
+ServerName XXXX.EXAMPLE_IR
 
 ## Default Overrides
 ServerSignature Off
