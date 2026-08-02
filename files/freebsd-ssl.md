@@ -67,7 +67,8 @@ sudo chown -R www:www /usr/local/www/apache24/data/EXAMPLE_IR
 ## Generate Certificate
 
 ```
-sudo certbot --apache -d EXAMPLE_IR -d XXXX.EXAMPLE_IR
+sudo certbot --apache -d XXXX.EXAMPLE_IR
+(-d EXAMPLE_IR if no sub-domains)
 ```
 
 The above command will append these lines<br>
@@ -114,6 +115,8 @@ ServerTokens Prod
 
 <IfModule mod_ssl.c>
 <VirtualHost *:443>
+    ServerName XXXX.EXAMPLE_IR
+
     ## to tell Apache to pass the Authorization header through
     ## (e.g. from mobile apps) to your Django application
     WSGIPassAuthorization On
@@ -238,11 +241,9 @@ TraceEnable off
   # Header set Content-Security-Policy "default-src 'self'; upgrade-insecure-requests;"
 
   Header always set Strict-Transport-Security "max-age=31536000"
-  Header always edit Set-Cookie (.*) "$1; HttpOnly; Secure"
   SetEnv modHeadersAvailable true
   Header always set X-Content-Type-Options "nosniff"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
-  Header always set X-Frame-Options "DENY"
 </IfModule>
 ```
 
