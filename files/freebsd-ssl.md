@@ -101,7 +101,6 @@ SSLCertificateKeyFile /usr/local/etc/letsencrypt/live/EXAMPLE_IR/privkey.pem
 ```
 
 Change the above content to:
-> replace `python3.11` with appropriate python version
 ```
 LoadModule wsgi_module /usr/local/libexec/apache24/mod_wsgi.so
 
@@ -109,6 +108,9 @@ ServerName XXXX.EXAMPLE_IR
 
 ## __FOR_FTP_ONLY__
 # Timeout 3600
+
+ServerSignature Off
+ServerTokens Prod
 
 <IfModule mod_ssl.c>
 <VirtualHost *:443>
@@ -120,6 +122,9 @@ ServerName XXXX.EXAMPLE_IR
     # LimitRequestBody 0
     # RequestReadTimeout body=0
     # WSGIApplicationGroup %{GLOBAL}
+
+    SSLProtocol -all +TLSv1.2 +TLSv1.3
+    Protocols h2 http/1.1
 
     ErrorLog  /FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-error.log
     CustomLog /FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-access.log common
@@ -134,7 +139,7 @@ ServerName XXXX.EXAMPLE_IR
     </Directory>
 
     ## user=<REMOTE_USERNAME> group=<REMOTE_USERNAME> processes=2 threads=25 from https://stackoverflow.com/questions/53857711/apache-django-mod-wsgi-errno-13-permission-denied
-    WSGIDaemonProcess <PROJECT_SLUG> python-path=/FOO/BAR/BAZ/<PROJECT_SLUG>:/FOO/BAR/BAZ/<PROJECT_SLUG>/venv/lib/python3.11/site-packages/ user=<REMOTE_USERNAME> group=<REMOTE_USERNAME> processes=2 threads=25
+    WSGIDaemonProcess <PROJECT_SLUG> python-home=/FOO/BAR/BAZ/<PROJECT_SLUG>/venv python-path=/FOO/BAR/BAZ/<PROJECT_SLUG> user=<REMOTE_USERNAME> group=<REMOTE_USERNAME> processes=2 threads=25
     WSGIProcessGroup  <PROJECT_SLUG>
     WSGIScriptAlias   / /FOO/BAR/BAZ/<PROJECT_SLUG>/heart/wsgi.py
 
@@ -192,23 +197,14 @@ sudo vim /usr/local/etc/apache24/httpd.conf
 
 1. Replace
 ```
-#ServerName www.example.com:80
-```
-with
-```
-#ServerName www.example.com:80
-ServerTokens Prod
-```
-
-2. Replace
-```
 Options Indexes FollowSymLinks
 ```
 with
 ```
 Options -Indexes +FollowSymLinks
 ```
-3. Replace
+
+2. Replace
 ```
 DocumentRoot "/usr/local/www/apache24/data"
 <Directory "/usr/local/www/apache24/data">
@@ -222,16 +218,18 @@ DocumentRoot "/usr/local/www/apache24/data"
 <Directory "/usr/local/www/apache24/data">
     ...
     <LimitExcept GET POST HEAD>
-       deny from all
+        Require all denied
     </LimitExcept>
     Require all granted
 </Directory>
 ```
-4. Add to the end of file:
+
+3. Add to the end of file:
 ```
 TraceEnable off
 ```
-5. Add to the end of file:
+
+4. Add to the end of file:
 ```
 <IfModule mod_headers.c>
   # Add security and privacy related headers
@@ -239,16 +237,16 @@ TraceEnable off
   ## by me: keep commented to prevent strange behavior on admin page
   # Header set Content-Security-Policy "default-src 'self'; upgrade-insecure-requests;"
 
-  Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set Strict-Transport-Security "max-age=31536000"
   Header always edit Set-Cookie (.*) "$1; HttpOnly; Secure"
-  Header set X-Content-Type-Options "nosniff"
-  Header set X-XSS-Protection "1; mode=block"
-  Header set Referrer-Policy "strict-origin"
-  Header set X-Frame-Options: "deny"
   SetEnv modHeadersAvailable true
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "DENY"
 </IfModule>
 ```
-6. Add to the end of file ([wp-bridge.com](https://www.wp-bridge.com/the-14-step-apache-security-best-practices-checklist/)):
+
+5. Add to the end of file ([wp-bridge.com](https://www.wp-bridge.com/the-14-step-apache-security-best-practices-checklist/)):
 ```
 FileETag None
 ```

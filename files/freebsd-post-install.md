@@ -801,7 +801,6 @@ sudo vim /usr/local/etc/apache24/Includes/<PROJECT_SLUG>.conf
 ```
 
 Paste:
-> replace `python3.11` with appropriate python version
 ```
 LoadModule wsgi_module /usr/local/libexec/apache24/mod_wsgi.so
 
@@ -840,7 +839,7 @@ ServerTokens Prod
     </Directory>
 
     ## user=<REMOTE_USERNAME> group=<REMOTE_USERNAME> processes=2 threads=25 from https://stackoverflow.com/questions/53857711/apache-django-mod-wsgi-errno-13-permission-denied
-    WSGIDaemonProcess <PROJECT_SLUG> python-path=/FOO/BAR/BAZ/<PROJECT_SLUG>:/FOO/BAR/BAZ/<PROJECT_SLUG>/venv/lib/python3.11/site-packages/ user=<REMOTE_USERNAME> group=<REMOTE_USERNAME> processes=2 threads=25
+    WSGIDaemonProcess <PROJECT_SLUG> python-home=/FOO/BAR/BAZ/<PROJECT_SLUG>/venv python-path=/FOO/BAR/BAZ/<PROJECT_SLUG> user=<REMOTE_USERNAME> group=<REMOTE_USERNAME> processes=2 threads=25
     WSGIProcessGroup  <PROJECT_SLUG>
     WSGIScriptAlias   / /FOO/BAR/BAZ/<PROJECT_SLUG>/heart/wsgi.py
 
