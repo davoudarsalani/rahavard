@@ -797,7 +797,7 @@ apachectl -M
 
 Configure:
 ```
-sudo vim /usr/local/etc/apache24/Includes/httpd.conf
+sudo vim /usr/local/etc/apache24/Includes/<PROJECT_SLUG>.conf
 ```
 
 Paste:
