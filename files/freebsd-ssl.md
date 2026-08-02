@@ -11,6 +11,16 @@ sudo pkg install -y security/py-certbot
 sudo pkg install -y security/py-certbot-apache
 ```
 
+## Comment out config file for http
+
+```
+sudo vim /usr/local/etc/apache24/Includes/<PROJECT_SLUG>.conf
+```
+
+&uarr; Comment out all the lines in it.
+
+<br>
+
 ## Configure SSL
 
 ```
@@ -95,13 +105,21 @@ will be created with the following content:
     CustomLog "/FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-access.log" common
 
 Include /usr/local/etc/letsencrypt/options-ssl-apache.conf
-SSLCertificateFile /usr/local/etc/letsencrypt/live/EXAMPLE_IR/fullchain.pem
-SSLCertificateKeyFile /usr/local/etc/letsencrypt/live/EXAMPLE_IR/privkey.pem
+SSLCertificateFile /usr/local/etc/letsencrypt/live/XXXX.EXAMPLE_IR/fullchain.pem
+SSLCertificateKeyFile /usr/local/etc/letsencrypt/live/XXXX.EXAMPLE_IR/privkey.pem
 </VirtualHost>
 </IfModule>
 ```
 
-Change the above content to:
+&uarr; Comment out all the lines in it.
+
+<br>
+
+```
+sudo vim /usr/local/etc/apache24/Includes/<PROJECT_SLUG>-ssl.conf
+```
+
+Paste:
 ```
 LoadModule wsgi_module /usr/local/libexec/apache24/mod_wsgi.so
 
