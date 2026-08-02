@@ -66,14 +66,6 @@ sudo chown -R www:www /usr/local/www/apache24/data/EXAMPLE_IR
 
 <br>
 
-
-> NOTE:<br>
-> To prevent potential errors and/or conflicts,<br>
-> first get rid of any `/usr/local/etc/apache24/Includes/<PROJECT_SLUG>.conf`<br>
-> already created by you.
-
-<br>
-
 ## Generate Certificate
 
 ```
