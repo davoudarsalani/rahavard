@@ -20,6 +20,7 @@ Uncomment:
 ```
 #LoadModule ssl_module libexec/apache24/mod_ssl.so
 #Include etc/apache24/extra/httpd-vhosts.conf
+#LoadModule rewrite_module libexec/apache24/mod_rewrite.so
 ```
 
 <br><br>
@@ -53,18 +54,8 @@ sudo mkdir /usr/local/www/apache24/data/EXAMPLE_IR
 sudo chown -R www:www /usr/local/www/apache24/data/EXAMPLE_IR
 ```
 
-<br><br>
-
-```
-sudo vim /usr/local/etc/apache24/httpd.conf
-```
-
-Uncomment:
-```
-#LoadModule rewrite_module libexec/apache24/mod_rewrite.so
-```
-
 <br>
+
 
 > NOTE:<br>
 > To prevent potential errors and/or conflicts,<br>
@@ -109,20 +100,26 @@ SSLCertificateKeyFile /usr/local/etc/letsencrypt/live/EXAMPLE_IR/privkey.pem
 </IfModule>
 ```
 
-
 Change the above content to:
-> replace `python3.11` with appropriate python version)
+> replace `python3.11` with appropriate python version
 ```
 LoadModule wsgi_module /usr/local/libexec/apache24/mod_wsgi.so
 
 ServerName XXXX.EXAMPLE_IR
-## >>> EXAMPLE_IR when no sub-domains
+
+## __FOR_FTP_ONLY__
+# Timeout 3600
 
 <IfModule mod_ssl.c>
 <VirtualHost *:443>
     ## to tell Apache to pass the Authorization header through
     ## (e.g. from mobile apps) to your Django application
     WSGIPassAuthorization On
+
+    ## __FOR_FTP_ONLY__
+    # LimitRequestBody 0
+    # RequestReadTimeout body=0
+    # WSGIApplicationGroup %{GLOBAL}
 
     ErrorLog  /FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-error.log
     CustomLog /FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-access.log common
@@ -256,28 +253,6 @@ TraceEnable off
 FileETag None
 ```
 > The ETag (Entity Tag) header in Apache comes with a number of sensitive details about your server. Therefore, you should hide this sort of information for full protection of your website. Especially, if you’re running an ecommerce website, you’ll have to hide this information to become PCI compliant.
-
-<br><br>
-
-Change `Timeout`:
-```
-sudo vim /usr/local/etc/apache24/extra/httpd-default.conf
-```
-Replace
-```
-Timeout 60
-```
-with
-```
-Timeout 30
-```
-
-<br><br>
-
-Restart `apache24`:
-```
-sudo service apache24 restart
-```
 
 <br><br>
 

@@ -801,23 +801,30 @@ sudo vim /usr/local/etc/apache24/Includes/httpd.conf
 ```
 
 Paste:
-> replace `python3.11` with appropriate python version)
+> replace `python3.11` with appropriate python version
 ```
 LoadModule wsgi_module /usr/local/libexec/apache24/mod_wsgi.so
 
 ## Settings
 ServerName XXXX.EXAMPLE_IR
 
+## __FOR_FTP_ONLY__
+# Timeout 3600
+
 ## Default Overrides
 ServerSignature Off
 ServerTokens Prod
-Timeout 30
 
 ## Virtual Hosts
 <VirtualHost *:80>
     ## to tell Apache to pass the Authorization header through
     ## (e.g. from mobile apps) to your Django application
     WSGIPassAuthorization On
+
+    ## __FOR_FTP_ONLY__
+    # LimitRequestBody 0
+    # RequestReadTimeout body=0
+    # WSGIApplicationGroup %{GLOBAL}
 
     ## custom paths for logs (by default, apache logs are saved in /var/log/, named httpd-access.log and httpd-error.log)
     CustomLog /FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-access.log common
