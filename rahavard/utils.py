@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest
 
-from datetime import datetime as dt
+from datetime import datetime as dt, tzinfo
 from math import floor, log as math_log, pow as math_pow
 from os import path, listdir, getenv
 from re import match, sub, compile as re_compile
@@ -43,7 +43,38 @@ _SHORT_UUID_CHARS = ascii_letters + digits
 
 _INT_OR_FLOAT_PATTERN = re_compile(r'^[0-9\.]+$')
 
-_SIZE_SIFFIXES = {
+## Persian digits -> English digits (for to_english_digits)
+_PERSIAN_TO_ENGLISH_DIGITS = str.maketrans(
+    '۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩',  ## Persian + Arabic-Indic digits
+    '01234567890123456789',
+)
+
+## Arabic letter variants -> Persian forms (for normalize_persian_text)
+_PERSIAN_NORMALIZE_MAP = str.maketrans(
+    {
+        'ي': 'ی',  ## Arabic yeh
+        'ك': 'ک',  ## Arabic kaf
+        'ة': 'ه',  ## teh marbuta
+        'أ': 'ا',  ## alef with hamza above
+        'إ': 'ا',  ## alef with hamza below
+        'آ': 'ا',  ## alef with madda
+        'ى': 'ی',  ## alef maksura
+        'ؤ': 'و',  ## waw with hamza
+        'ئ': 'ی',  ## yeh with hamza
+        '٠': '۰',  ## Arabic-Indic digits -> Persian digits
+        '١': '۱',
+        '٢': '۲',
+        '٣': '۳',
+        '٤': '۴',
+        '٥': '۵',
+        '٦': '۶',
+        '٧': '۷',
+        '٨': '۸',
+        '٩': '۹',
+    }
+)
+
+_SIZE_SUFFIXES = {
     'persian': [
         'بایت',
         'کیلوبایت',
@@ -215,6 +246,42 @@ def comes_from_htmx(request: HttpRequest) -> bool:
 
     return 'HX-Request' in request.headers
 
+def get_client_ip(request: HttpRequest) -> str:
+    '''
+    Extract the client's IP address from a Django request.
+
+    Checks the 'X-Forwarded-For' header first (comma-separated list of IPs,
+    where the left-most entry is the original client), then falls back to
+    'REMOTE_ADDR'. Returns an empty string if neither is available.
+
+    Args:
+        request (HttpRequest): The Django HttpRequest object.
+
+    Returns:
+        str: The client's IP address, or an empty string if unknown.
+
+    Examples:
+        >>> from django.http import HttpRequest
+        >>> request = HttpRequest()
+        >>> request.META['HTTP_X_FORWARDED_FOR'] = '203.0.113.7, 10.0.0.1'
+        >>> get_client_ip(request)
+        '203.0.113.7'
+
+        >>> from django.http import HttpRequest
+        >>> request = HttpRequest()
+        >>> request.META['REMOTE_ADDR'] = '127.0.0.1'
+        >>> get_client_ip(request)
+        '127.0.0.1'
+    '''
+
+    forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
+
+    if forwarded:
+        ## left-most entry is the original client
+        return forwarded.split(',')[0].strip()
+
+    return request.META.get('REMOTE_ADDR', '')
+
 def convert_byte(size_in_bytes: Union[int, float], to_persian: bool = False) -> str:
     '''
     Convert a size in bytes to a human-readable string format.
@@ -251,6 +318,9 @@ def convert_byte(size_in_bytes: Union[int, float], to_persian: bool = False) -> 
         return '0B'
 
     i = int(floor(math_log(size_in_bytes, 1024)))
+    ## clamp index so huge values (>= 1024**len(suffixes)) don't crash
+    if i >= len(_SIZE_SUFFIXES['latin']):
+        i = len(_SIZE_SUFFIXES['latin']) - 1
     p = math_pow(1024, i)
     conv = f'{float(size_in_bytes / p):.1f}'
 
@@ -259,9 +329,9 @@ def convert_byte(size_in_bytes: Union[int, float], to_persian: bool = False) -> 
         conv = sub(r'\.0+$', '', conv)
 
     if to_persian:
-        suffixes = _SIZE_SIFFIXES.get('persian')
+        suffixes = _SIZE_SUFFIXES.get('persian')
     else:
-        suffixes = _SIZE_SIFFIXES.get('latin')
+        suffixes = _SIZE_SUFFIXES.get('latin')
 
     if to_persian:
         return f'{persianize(conv)} {suffixes[i]}'
@@ -455,7 +525,10 @@ def convert_string_True_False_None_0(item: str) -> Union[bool, None, int, str]:
 
     return item
 
-def convert_timestamp_to_jalali(tmstmp: Optional[int] = None) -> str:
+def convert_timestamp_to_jalali(
+    tmstmp: Optional[int] = None,
+    timezone: Optional[tzinfo] = None,
+) -> str:
     '''
     Convert a Unix timestamp to a Jalali date string.
 
@@ -464,12 +537,16 @@ def convert_timestamp_to_jalali(tmstmp: Optional[int] = None) -> str:
 
     Parameters:
         tmstmp (Optional[int]): Unix timestamp to be converted. Defaults to None.
+        timezone (Optional[tzinfo]): Timezone to interpret the timestamp in.
+            Defaults to None (the system's local timezone).
 
     Returns:
         str: The converted Jalali date string or an empty string if no timestamp is provided.
 
     Examples:
-        >>> convert_timestamp_to_jalali(1682598113)
+        >>> from datetime import timezone, timedelta
+        >>> tehran = timezone(timedelta(hours=3, minutes=30))
+        >>> convert_timestamp_to_jalali(1682598113, timezone=tehran)
         'پنج‌شنبه ۱۵:۵۱:۵۳ ۱۴۰۲/۰۲/۰۷'
         >>> convert_timestamp_to_jalali()
         ''
@@ -481,7 +558,7 @@ def convert_timestamp_to_jalali(tmstmp: Optional[int] = None) -> str:
 
     jdatetime.set_locale('fa_IR')
 
-    jalali_object = jdt.fromtimestamp(int(tmstmp))
+    jalali_object = jdt.fromtimestamp(int(tmstmp), tz=timezone)
     w, h, mi, s, d, mo, y = jalali_object.strftime(JALALI_FORMAT).split()
 
     return f'{w} {english_to_persian(h)}:{english_to_persian(mi)}:{english_to_persian(s)} {english_to_persian(y)}/{english_to_persian(mo)}/{english_to_persian(d)}'
@@ -760,12 +837,63 @@ def html_to_plain_text(html_text: str) -> str:
 
     return plain_text
 
+def truncate_text(text: str, max_length: int, suffix: str = '...') -> str:
+    '''
+    Truncate a string to a maximum length, appending a suffix.
+
+    If the text is longer than max_length, it is cut so that the total
+    length (including the suffix) does not exceed max_length. The cut
+    happens at the last space within the limit to avoid splitting words.
+
+    Args:
+        text (str): The text to truncate.
+        max_length (int): The maximum allowed length of the result.
+        suffix (str): The suffix appended when truncation occurs. Defaults to '...'.
+
+    Returns:
+        str: The truncated text.
+
+    Examples:
+        >>> truncate_text('The quick brown fox', 10)
+        'The...'
+        >>> truncate_text('Short', 10)
+        'Short'
+        >>> truncate_text('The quick brown fox', 5)
+        'Th...'
+        >>> truncate_text('The quick brown fox', 3, suffix='…')
+        'Th…'
+    '''
+    ## __HAS_TEST__
+
+    if max_length <= 0:
+        return ''
+
+    if len(text) <= max_length:
+        return text
+
+    ## leave room for the suffix
+    limit = max_length - len(suffix)
+
+    if limit <= 0:
+        return text[:max_length]
+
+    cut = text[:limit]
+
+    ## cut at the last space to avoid splitting words
+    last_space = cut.rfind(' ')
+
+    if last_space > 0:
+        cut = cut[:last_space]
+
+    return f'{cut}{suffix}'
+
 def intcomma_persian(num: str) -> str:
     '''
     Formats a Persian number string by adding commas as thousand separators.
 
     This function supports both integer and floating-point Persian numbers. 
     For floating-point numbers, it correctly handles the decimal separator.
+    A leading minus sign is preserved.
 
     Args:
         num (str): The Persian number string to be formatted.
@@ -780,6 +908,8 @@ def intcomma_persian(num: str) -> str:
         '۱،۲۳۴،۵۶۷،۸۹۰.۱۲۳۴۵۶۷۸۹۰'
         >>> intcomma_persian('۱۲۳۴۵۶۷۸۹۰/۱۲۳۴۵۶۷۸۹۰')
         '۱،۲۳۴،۵۶۷،۸۹۰/۱۲۳۴۵۶۷۸۹۰'
+        >>> intcomma_persian('-۱۲۳۴۵۶۷')
+        '-۱،۲۳۴،۵۶۷'
 
     Note:
         - https://stackoverflow.com/questions/50319819/separate-thousands-while-typing-in-farsipersian
@@ -790,6 +920,11 @@ def intcomma_persian(num: str) -> str:
     left = ''
     right = ''
     is_float = False
+
+    ## preserve a leading minus sign
+    negative = num.startswith('-')
+    if negative:
+        num = num[1:]
 
     ## JUMP_1 is float
     if match(r'^[۱۲۳۴۵۶۷۸۹۰]+\.[۱۲۳۴۵۶۷۸۹۰]+$', num):
@@ -815,6 +950,9 @@ def intcomma_persian(num: str) -> str:
 
     if is_float:
         commad = f'{commad}{separator}{right}'
+
+    if negative:
+        commad = f'-{commad}'
 
     return commad
 
@@ -889,6 +1027,61 @@ def persianize(number: Union[int, float]) -> str:
 
     return english_to_persian(int(number))
 
+def to_english_digits(text: str) -> str:
+    '''
+    Convert Persian/Arabic-Indic digits in a string to English digits.
+
+    Replaces ۰-۹ (Persian) and ٠-٩ (Arabic-Indic) digits with their
+    English 0-9 counterparts. Non-digit characters are left untouched.
+
+    Args:
+        text (str): The input string that may contain Persian/Arabic digits.
+
+    Returns:
+        str: The string with Persian/Arabic digits converted to English.
+
+    Examples:
+        >>> to_english_digits('۱۲۳۴')
+        '1234'
+        >>> to_english_digits('٤٥٦')
+        '456'
+        >>> to_english_digits('قیمت: ۱۲.۵ تومان')
+        'قیمت: 12.5 تومان'
+        >>> to_english_digits('abc')
+        'abc'
+    '''
+    ## __HAS_TEST__
+
+    return text.translate(_PERSIAN_TO_ENGLISH_DIGITS)
+
+def normalize_persian_text(text: str) -> str:
+    '''
+    Normalize Persian text for consistent searching and comparison.
+
+    Converts Arabic variants of Persian letters to their Persian forms
+    (ي -> ی, ك -> ک, ة -> ه, أ/إ/آ -> ا, ى -> ی, ؤ -> و, ئ -> ی) and
+    converts Arabic-Indic digits (٠-٩) to Persian digits (۰-۹).
+
+    Args:
+        text (str): The input text to normalize.
+
+    Returns:
+        str: The normalized text.
+
+    Examples:
+        >>> normalize_persian_text('يك كتاب خوب')
+        'یک کتاب خوب'
+        >>> normalize_persian_text('الأخبار')
+        'الاخبار'
+        >>> normalize_persian_text('٤٥٦')
+        '۴۵۶'
+        >>> normalize_persian_text('abc')
+        'abc'
+    '''
+    ## __HAS_TEST__
+
+    return text.translate(_PERSIAN_NORMALIZE_MAP)
+
 def sort_dict(dictionary: Dict[Any, Any], based_on: str, reverse: bool) -> Dict[Any, Any]:
     '''
     Sort a dictionary based on its keys or values, with tie-breaking by key if sorting by value.
@@ -933,19 +1126,22 @@ def sort_dict(dictionary: Dict[Any, Any], based_on: str, reverse: bool) -> Dict[
         ## sort by value first (ascending or descending depending on reverse),
         ## then by key ascending to break ties -
         ## i.e. the pairs whose values are the same,
-        ## will be sorted by key ascending no matter what reverse is
-
-        def _sort_key(item):
-            val = _normalize(item[1])
-            key = _normalize(item[0])
-            # For reverse, numeric values get negated; strings stay as-is, and reverse handled manually
-            if isinstance(val, (int, float)):
-                val_sort = -val if reverse else val
-            else:
-                val_sort = val  # strings can't be negated
-            return (val_sort, key)  # tie-break always by key ascending
-
-        return dict(natsorted(dictionary.items(), key=_sort_key))
+        ## will be sorted by key ascending no matter what reverse is.
+        ##
+        ## Two-pass stable sort: natsorted is stable, so ties keep the
+        ## key-ascending order produced by the first pass even when the
+        ## second pass reverses the value order.
+        items = natsorted(
+            dictionary.items(),
+            key=lambda item: _normalize(item[0]),
+        )
+        return dict(
+            natsorted(
+                items,
+                key=lambda item: _normalize(item[1]),
+                reverse=reverse,
+            )
+        )
 
     return dictionary
 
@@ -966,10 +1162,19 @@ def to_tilda(text: str) -> str:
         '~/'
         >>> to_tilda('/home/other_username/file.txt')
         '/home/other_username/file.txt'
+
+    Note:
+        If the HOME environment variable is not set, the text is returned
+        unchanged instead of raising an error.
     '''
     ## __HAS_RUST_VERSION__
 
-    return sub(getenv('HOME'), '~', text)
+    home = getenv('HOME')
+
+    if not home:
+        return text
+
+    return text.replace(home, '~')
 
 
 # -----------------

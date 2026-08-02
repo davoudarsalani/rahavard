@@ -22,6 +22,7 @@ from .utils import (
     convert_to_second,
     create_id_for_htmx_indicator,
     create_short_uuid,
+    get_client_ip,
     get_command,
     get_command_log_file,
     get_percent,
@@ -29,9 +30,13 @@ from .utils import (
     intcomma_persian,
     is_int_or_float,
     is_ymd,
+    normalize_persian_text,
     persianize,
     sort_dict,
     starts_with_ymdhms,
+    to_english_digits,
+    to_tilda,
+    truncate_text,
 )
 
 
@@ -170,6 +175,13 @@ class TestConvertByte:
     ])
     def test_large_values(self, value, expected):
         assert convert_byte(value) == expected
+
+    def test_huge_value_no_index_error(self):
+        ## 1024**9 would index past the suffix list without the clamp
+        result = convert_byte(1024**9)
+
+        assert isinstance(result, str)
+        assert result.endswith('YB')
 
 
 class TestConvertMillisecond:
@@ -418,7 +430,12 @@ class TestConvertTimestampToJalali:
         assert '  ' not in result
 
     def test_literal_jalali(self):
-        assert convert_timestamp_to_jalali(1682598113) == 'پنج‌شنبه ۱۵:۵۱:۵۳ ۱۴۰۲/۰۲/۰۷'
+        from datetime import timedelta, timezone
+
+        ## pin the timezone so the assertion is host-independent
+        tehran = timezone(timedelta(hours=3, minutes=30))
+
+        assert convert_timestamp_to_jalali(1682598113, timezone=tehran) == 'پنج‌شنبه ۱۵:۵۱:۵۳ ۱۴۰۲/۰۲/۰۷'
 
 
 class TestConvertToJalali:
@@ -944,12 +961,26 @@ class TestIntcommaPersian:
     def test_float_dot_format(self, value, expected):
         assert intcomma_persian(value) == expected
 
+    def test_negative_number(self):
+        assert intcomma_persian('-۱۲۳۴۵۶۷') == '-۱،۲۳۴،۵۶۷'
+
+    def test_negative_float(self):
+        assert intcomma_persian('-۱۲۳۴.۵۶۷') == '-۱،۲۳۴.۵۶۷'
+
     @pytest.mark.parametrize('value, expected', [
         ('۱۲۳۴۵۶۷۸۹/۱۲۳۴۵۶۷۸۹', '۱۲۳،۴۵۶،۷۸۹/۱۲۳۴۵۶۷۸۹'),
         ('۱۲۳۴/۵۶', '۱،۲۳۴/۵۶'),
         ('۱/۲', '۱/۲'),
     ])
     def test_slash_format(self, value, expected):
+        assert intcomma_persian(value) == expected
+
+    @pytest.mark.parametrize('value, expected', [
+        ('۱۲۳۴۵۶۷۸۹۰', '۱،۲۳۴،۵۶۷،۸۹۰'),
+        ('۱۲۳۴۵۶۷۸۹۰.۱۲۳۴۵۶۷۸۹۰', '۱،۲۳۴،۵۶۷،۸۹۰.۱۲۳۴۵۶۷۸۹۰'),
+        ('۱۲۳۴۵۶۷۸۹۰/۱۲۳۴۵۶۷۸۹۰', '۱،۲۳۴،۵۶۷،۸۹۰/۱۲۳۴۵۶۷۸۹۰'),
+    ])
+    def test_large_values(self, value, expected):
         assert intcomma_persian(value) == expected
 
     @pytest.mark.parametrize('value', [
@@ -1212,6 +1243,25 @@ class TestSortDict:
 
         assert list(result.keys()) == ['a', 'c', 'b']
 
+    def test_string_values_reverse(self):
+        data = {'a': 'x', 'b': 'y', 'c': 'z'}
+        result = sort_dict(data, based_on='value', reverse=True)
+
+        assert list(result.keys()) == ['c', 'b', 'a']
+
+    def test_string_values_ascending(self):
+        data = {'a': 'z', 'b': 'y', 'c': 'x'}
+        result = sort_dict(data, based_on='value', reverse=False)
+
+        assert list(result.keys()) == ['c', 'b', 'a']
+
+    def test_string_value_ties_break_by_key_ascending(self):
+        data = {'b': 'same', 'a': 'same', 'c': 'same'}
+        result = sort_dict(data, based_on='value', reverse=True)
+
+        ## tie-break should always enforce key ascending
+        assert list(result.keys()) == ['a', 'b', 'c']
+
 
 class TestStartsWithYMDHMS:
     @pytest.mark.parametrize('value', [
@@ -1268,3 +1318,122 @@ class TestStartsWithYMDHMS:
     ])
     def test_not_strict_start_or_spacing(self, value):
         assert starts_with_ymdhms(value) is False
+
+
+class TestGetClientIP:
+    @pytest.fixture(autouse=True)
+    def configure_settings(self):
+        if not settings.configured:
+            settings.configure(DEBUG=True)
+
+    def test_forwarded_header_uses_first_entry(self):
+        from django.http import HttpRequest
+
+        request = HttpRequest()
+        request.META['HTTP_X_FORWARDED_FOR'] = '203.0.113.7, 10.0.0.1'
+
+        assert get_client_ip(request) == '203.0.113.7'
+
+    def test_forwarded_header_strips_whitespace(self):
+        from django.http import HttpRequest
+
+        request = HttpRequest()
+        request.META['HTTP_X_FORWARDED_FOR'] = '203.0.113.7 ,  10.0.0.1'
+
+        assert get_client_ip(request) == '203.0.113.7'
+
+    def test_remote_addr_fallback(self):
+        from django.http import HttpRequest
+
+        request = HttpRequest()
+        request.META['REMOTE_ADDR'] = '127.0.0.1'
+
+        assert get_client_ip(request) == '127.0.0.1'
+
+    def test_no_headers_returns_empty(self):
+        from django.http import HttpRequest
+
+        request = HttpRequest()
+
+        assert get_client_ip(request) == ''
+
+
+class TestToEnglishDigits:
+    @pytest.mark.parametrize('value, expected', [
+        ('۱۲۳۴', '1234'),
+        ('۰', '0'),
+        ('٤٥٦', '456'),
+        ('قیمت: ۱۲.۵ تومان', 'قیمت: 12.5 تومان'),
+        ('abc', 'abc'),
+        ('', ''),
+    ])
+    def test_conversions(self, value, expected):
+        assert to_english_digits(value) == expected
+
+    def test_mixed_persian_and_arabic_digits(self):
+        assert to_english_digits('۱۲٣۴٥') == '12345'
+
+
+class TestNormalizePersianText:
+    @pytest.mark.parametrize('value, expected', [
+        ('يك كتاب خوب', 'یک کتاب خوب'),
+        ('الأخبار', 'الاخبار'),
+        ('٤٥٦', '۴۵۶'),
+        ('abc', 'abc'),
+        ('', ''),
+    ])
+    def test_normalizations(self, value, expected):
+        assert normalize_persian_text(value) == expected
+
+    def test_idempotent(self):
+        normalized = normalize_persian_text('يك كتاب خوب')
+        assert normalize_persian_text(normalized) == normalized
+
+
+class TestTruncateText:
+    def test_short_text_unchanged(self):
+        assert truncate_text('Short', 10) == 'Short'
+
+    @pytest.mark.parametrize('text, max_length, expected', [
+        ('The quick brown fox', 10, 'The...'),
+        ('The quick brown fox', 5, 'Th...'),
+        ('The quick brown fox', 14, 'The quick...'),
+    ])
+    def test_truncates_at_word_boundary(self, text, max_length, expected):
+        assert truncate_text(text, max_length) == expected
+
+    def test_custom_suffix(self):
+        assert truncate_text('The quick brown fox', 3, suffix='…') == 'Th…'
+
+    def test_suffix_longer_than_limit(self):
+        assert truncate_text('The quick brown fox', 3, suffix='longsuffix') == 'The'
+
+    def test_zero_or_negative_max_length(self):
+        assert truncate_text('The quick brown fox', 0) == ''
+        assert truncate_text('The quick brown fox', -5) == ''
+
+    def test_exact_length_no_truncation(self):
+        assert truncate_text('Exactly10', 10) == 'Exactly10'
+
+
+class TestToTilda:
+    def test_replaces_home(self, monkeypatch):
+        monkeypatch.setenv('HOME', '/home/my_username')
+
+        assert to_tilda('/home/my_username/documents/file.txt') == '~/documents/file.txt'
+        assert to_tilda('/home/my_username/') == '~/'
+
+    def test_other_users_home_untouched(self, monkeypatch):
+        monkeypatch.setenv('HOME', '/home/my_username')
+
+        assert to_tilda('/home/other_username/file.txt') == '/home/other_username/file.txt'
+
+    def test_no_home_env_returns_text_unchanged(self, monkeypatch):
+        monkeypatch.delenv('HOME', raising=False)
+
+        assert to_tilda('/home/my_username/file.txt') == '/home/my_username/file.txt'
+
+    def test_empty_text(self, monkeypatch):
+        monkeypatch.setenv('HOME', '/home/my_username')
+
+        assert to_tilda('') == ''
