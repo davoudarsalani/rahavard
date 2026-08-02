@@ -79,6 +79,12 @@ sudo pkg install -y e2fsprogs    ## this will install chattr and lsattr
 sudo pkg install -y xorg xorg-server xorg-apps xorg-drivers
 sudo pkg install -y open-vm-tools-nox11    ## for VMs only
 
+## wsgi
+sudo pkg install -y ap24-py312-mod_wsgi  ## may need to adjust version
+##
+## previously:
+# sudo pkg install -y www/mod_wsgi4  ## installs ap24-py39-mod_wsgi
+
 ## mysql (using ports)
 pkg search databases/mysql*
 sudo pkg install -y databases/mysql90-server
@@ -92,7 +98,6 @@ sudo pkg install -y mysql90-client
 ## install from ports
 sudo pkg install -y sysutils/htop
 sudo pkg install -y databases/py-sqlite3
-sudo pkg install -y www/mod_wsgi4  ## installs ap24-py39-mod_wsgi
 ```
 
 <br>
