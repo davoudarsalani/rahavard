@@ -1,9 +1,10 @@
+# runtime dependencies (also declared in pyproject.toml)
 beautifulsoup4
 convert_numbers
 django
 jdatetime
 natsort
+
+# dev/test
 pytest
-setuptools
-wheel
-twine
+ruff
