@@ -105,7 +105,7 @@ SSLCertificateKeyFile /usr/local/etc/letsencrypt/live/XXXX.EXAMPLE_IR/privkey.pe
 
 &uarr; Comment out all the lines in it.
 
-<br>
+<br><br>
 
 ```
 sudo vim /usr/local/etc/apache24/Includes/<PROJECT_SLUG>-ssl.conf
@@ -179,8 +179,9 @@ sudo mkdir -p /usr/local/docs/EXAMPLE_IR
 
 <br>
 
-Restart `apache24`:
+Reload and Restart `apache24`:
 ```
+sudo service apache24 reload && \
 sudo service apache24 restart
 ```
 

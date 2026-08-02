@@ -863,6 +863,14 @@ ServerTokens Prod
 
 <br>
 
+Reload and Restart `apache24`:
+```
+sudo service apache24 reload && \
+sudo service apache24 restart
+```
+
+<br>
+
 ## `live_parse` Service
 
 > [serverfault.com](https://serverfault.com/questions/873185/freebsd-rc-d-script-doesnt-start-as-a-daemon), [unix.stackexchange.com](https://unix.stackexchange.com/questions/50478/is-there-an-easy-way-to-create-a-freebsd-rc-script), [unix.stackexchange.com](https://unix.stackexchange.com/questions/745327/python-script-as-rc-service-on-freebsd)
