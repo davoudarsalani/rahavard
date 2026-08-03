@@ -53,6 +53,16 @@ Paste:
     ErrorLog     "/FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-error.log"
     CustomLog    "/FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-access.log" common
 
+    ## NOTE you may need to uncomment the following lines
+    ##      in case of permission denied errors
+    # <Directory "/FOO/BAR/BAZ/<PROJECT_SLUG>/heart">
+    #     Require all granted
+    # </Directory>
+    # Alias /.well-known/acme-challenge/ /FOO/BAR/BAZ/<PROJECT_SLUG>/heart/.well-known/acme-challenge/
+    # <Directory "/FOO/BAR/BAZ/<PROJECT_SLUG>/heart/.well-known/acme-challenge/">
+    #     Require all granted
+    # </Directory>
+
 </VirtualHost>
 ```
 
