@@ -11,7 +11,9 @@ sudo pkg install -y security/py-certbot
 sudo pkg install -y security/py-certbot-apache
 ```
 
-## Comment out config file for http
+<br>
+
+## Comment out Config File for http
 
 ```
 sudo vim /usr/local/etc/apache24/Includes/<PROJECT_SLUG>.conf
