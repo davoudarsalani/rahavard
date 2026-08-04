@@ -1,7 +1,7 @@
 '''
 run:
-/Foo/BAR/BAZ/rahavard/venv/bin/pytest \
-/Foo/BAR/BAZ/rahavard/rahavard/test_utils.py
+~/main/pypi/rahavard/venv/bin/pytest \
+~/main/pypi/rahavard/rahavard/test_utils.py
 '''
 
 from django.conf import settings
@@ -150,7 +150,7 @@ class TestConvertByte:
 
     @pytest.mark.parametrize('value, expected', [
         (1024, '۱ کیلوبایت'),
-        (1536, '۱.۵ کیلوبایت'),
+        (1536, '۱/۵ کیلوبایت'),
         (1048576, '۱ مگابایت'),
     ])
     def test_persian_output(self, value, expected):
@@ -806,8 +806,8 @@ class TestGetPercent:
     @pytest.mark.parametrize('smaller_number, total_number, expected', [
         (25, 100, '۲۵'),
         (1, 100, '۱'),
-        (99.95232355216523, 100, '۹۹.۹'),
-        (15.5, 20, '۷۷.۵'),
+        (99.95232355216523, 100, '۹۹/۹'),
+        (15.5, 20, '۷۷/۵'),
     ])
     def test_persian_output(
         self,
@@ -1121,18 +1121,18 @@ class TestPersianize:
         assert persianize(value) == expected
 
     @pytest.mark.parametrize('value, expected', [
-        (123.45, '۱۲۳.۴۵'),
-        (10.10, '۱۰.۱'),
-        (0.12, '۰.۱۲'),
-        (99.99, '۹۹.۹۹'),
+        (123.45, '۱۲۳/۴۵'),
+        (10.10, '۱۰/۱'),
+        (0.12, '۰/۱۲'),
+        (99.99, '۹۹/۹۹'),
     ])
     def test_float_two_decimal_digits(self, value, expected):
         assert persianize(value) == expected
 
     @pytest.mark.parametrize('value, expected', [
-        (123.456, '۱۲۳.۴۵'),
-        (1.239, '۱.۲۳'),
-        (10.9876, '۱۰.۹۸'),
+        (123.456, '۱۲۳/۴۵'),
+        (1.239, '۱/۲۳'),
+        (10.9876, '۱۰/۹۸'),
     ])
     def test_float_truncation_not_rounding(self, value, expected):
         assert persianize(value) == expected
@@ -1144,9 +1144,9 @@ class TestPersianize:
     def test_large_number(self):
         assert persianize(1000000) == '۱۰۰۰۰۰۰'
 
-    def test_no_trailing_dot_for_integer_float(self):
-        assert '.' not in persianize(10.0)
-        assert '.' in persianize(10.1)
+    def test_no_trailing_slash_for_integer_float(self):
+        assert '/' not in persianize(10.0)
+        assert '/' in persianize(10.1)
 
 
 class TestSortDict:

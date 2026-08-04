@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpRequest
 from datetime import datetime as dt
 from math import floor, log as math_log, pow as math_pow
 from os import path, listdir, getenv
-from re import match, sub, compile as re_compile
+from re import match, sub, fullmatch, compile as re_compile
 from secrets import choice as secrets_choice
 from string import (
     ascii_letters,
@@ -792,15 +792,15 @@ def intcomma_persian(num: str) -> str:
     is_float = False
 
     ## JUMP_1 is float
-    if match(r'^[۱۲۳۴۵۶۷۸۹۰]+\.[۱۲۳۴۵۶۷۸۹۰]+$', num):
-        left, right = num.split('.')
+    if fullmatch(r'[۱۲۳۴۵۶۷۸۹۰]+\.[۱۲۳۴۵۶۷۸۹۰]+', num):
         separator = '.'
+        left, right = num.split(separator)
         is_float = True
 
     ## JUMP_1 is float
-    elif match(r'^[۱۲۳۴۵۶۷۸۹۰]+\/[۱۲۳۴۵۶۷۸۹۰]+$', num):
-        left, right = num.split('/')
+    elif fullmatch(r'[۱۲۳۴۵۶۷۸۹۰]+\/[۱۲۳۴۵۶۷۸۹۰]+', num):
         separator = '/'
+        left, right = num.split(separator)
         is_float = True
 
     else:
@@ -874,18 +874,18 @@ def persianize(number: Union[int, float]) -> str:
         >>> persianize(123.00)
         '۱۲۳'
         >>> persianize(123.45)
-        '۱۲۳.۴۵'
+        '۱۲۳/۴۵'
     '''
     ## __HAS_TEST__
 
     number = str(number)
 
     ## JUMP_1 is float
-    if match(r'^[0-9]+\.[0-9]+$', number):
+    if fullmatch(r'\d+\.\d+', number):
         _left, _right = number.split('.')
         if match('^0+$', _right):
             return english_to_persian(_left)
-        return f'{english_to_persian(_left)}.{english_to_persian(_right[:2])}'
+        return f'{english_to_persian(_left)}/{english_to_persian(_right[:2])}'
 
     return english_to_persian(int(number))
 

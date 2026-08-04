@@ -631,6 +631,12 @@ Paste:
 
 ## at 00:10
 10 0 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py close-old-tickets
+
+## --------------------
+## only on ftp
+
+## at 00:10
+10 0 * * *  /FOO/BAR/BAZ/<PROJECT_SLUG>/venv/bin/python /FOO/BAR/BAZ/<PROJECT_SLUG>/manage.py update-used
 ```
 
 <br>
