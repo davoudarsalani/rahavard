@@ -151,22 +151,23 @@ ServerTokens Prod
     SSLProtocol -all +TLSv1.2 +TLSv1.3
     Protocols h2 http/1.1
 
-    ErrorLog  /FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-error.log
     CustomLog /FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-access.log common
+    ErrorLog  /FOO/BAR/BAZ/<PROJECT_SLUG>/logs/httpd-error.log
 
-    ## https://docs.djangoproject.com/en/4.2/howto/deployment/wsgi/modwsgi/#serving-files
-    Alias /public-attachments/    /FOO/BAR/BAZ/<PROJECT_SLUG>/static/public-attachments/
-    # Alias /robots.txt  /path/to/mysite.com/static/robots.txt
-    # Alias /favicon.ico /FOO/BAR/BAZ/<PROJECT_SLUG>/static/files/misc/fav.ico
-    # Alias /static/     /FOO/BAR/BAZ/<PROJECT_SLUG>/static/
     <Directory /FOO/BAR/BAZ/<PROJECT_SLUG>/static>
         Require all granted
     </Directory>
 
-    ## user=<REMOTE_USERNAME> group=<REMOTE_USERNAME> processes=2 threads=25 from https://stackoverflow.com/questions/53857711/apache-django-mod-wsgi-errno-13-permission-denied
-    WSGIDaemonProcess <PROJECT_SLUG> python-home=/FOO/BAR/BAZ/<PROJECT_SLUG>/venv python-path=/FOO/BAR/BAZ/<PROJECT_SLUG> user=<REMOTE_USERNAME> group=<REMOTE_USERNAME> processes=2 threads=25
-    WSGIProcessGroup  <PROJECT_SLUG>
-    WSGIScriptAlias   / /FOO/BAR/BAZ/<PROJECT_SLUG>/heart/wsgi.py
+    WSGIDaemonProcess \
+      <PROJECT_SLUG> \
+      python-home=/FOO/BAR/BAZ/<PROJECT_SLUG>/venv \
+      python-path=/FOO/BAR/BAZ/<PROJECT_SLUG> \
+      user=<REMOTE_USERNAME> \
+      group=<REMOTE_USERNAME> \
+      processes=2 \
+      threads=25
+    WSGIProcessGroup <PROJECT_SLUG>
+    WSGIScriptAlias / /FOO/BAR/BAZ/<PROJECT_SLUG>/heart/wsgi.py
 
     <Directory /FOO/BAR/BAZ/<PROJECT_SLUG>/heart>
         <Files wsgi.py>
